@@ -16,21 +16,29 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
     .date { font-size: 0.9rem; color: #888; }
+    nav a { font-weight: bold; text-decoration: none; color: #4CAF50; }
   </style>
 </head>
 <body>
+  <nav><a href="index.html">← Retour</a></nav>
   <h1>📜 Historique des tâches validées</h1>
   <div id="historyList"></div>
 
   <script>
     const historyEl = document.getElementById("historyList");
     const history = JSON.parse(localStorage.getItem("history")) || [];
+    const categories = JSON.parse(localStorage.getItem("categories")) || [];
+
+    function getEmoji(catName) {
+      const found = categories.find(c => c.name === catName);
+      return found ? found.emoji : "📌";
+    }
 
     history.reverse().forEach(task => {
       const div = document.createElement("div");
       div.className = "task-entry";
       div.innerHTML = `
-        <strong>${task.name}</strong> (${task.type}, ${task.category})<br/>
+        <strong>${getEmoji(task.category)} ${task.name}</strong> (${task.type}, ${task.category})<br/>
         <span class="date">${task.date}</span> [+${task.points} XP]
       `;
       historyEl.appendChild(div);
