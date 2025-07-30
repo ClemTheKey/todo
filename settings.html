@@ -4,116 +4,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Réglages - ToDo Gamifié</title>
+  <title>Réglages v3.1</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      background: #f0f4f8;
-      color: #333;
-    }
-    header {
-      background: #4CAF50;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-    }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      background: white;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    a {
-      text-decoration: none;
-      color: #4CAF50;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; }
+    header { background: #4CAF50; color: white; padding: 1rem; text-align: center; font-size: 1.5rem; }
+    .container { max-width: 800px; margin: 2rem auto; background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
+    input, select, button { padding: 0.5rem; margin-bottom: 1rem; width: 100%; }
+    button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+    a { text-decoration: none; color: #4CAF50; display: inline-block; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-  <header>Réglages ⚙️</header>
+  <header>Réglages <span style="font-size:0.8rem;">(v3.1)</span></header>
   <div class="container">
-    <p><a href="index.html">⬅️ Retour à l'accueil</a></p>
-    <h3>Ajouter une tâche</h3>
-    <div class="form-group">
-      <input type="text" id="taskName" placeholder="Nom de la tâche" />
-      <select id="taskType">
-        <option value="quotidien">Quotidien</option>
-        <option value="hebdo">Hebdo</option>
-        <option value="3-jours">Tous les 3 jours</option>
-        <option value="one-shot">One-shot</option>
-      </select>
-      <select id="taskCategory"></select>
-      <input type="number" id="taskPoints" placeholder="Points" min="1" />
-      <button onclick="addTask()">Ajouter</button>
-    </div>
+    <a href="index.html">⬅️ Retour</a>
 
-    <h3>Catégories personnalisées</h3>
+    <h2>Ajouter une tâche</h2>
+    <div class="form-group">
+      <label>Nom</label>
+      <input type="text" id="taskName" />
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="taskType">
+        <option value="one-shot">One-shot</option>
+        <option value="daily">Quotidienne</option>
+        <option value="weekly">Hebdomadaire</option>
+        <option value="3-days">Tous les 3 jours</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Catégorie</label>
+      <input type="text" id="taskCategory" />
+    </div>
+    <div class="form-group">
+      <label>Points</label>
+      <input type="number" id="taskPoints" />
+    </div>
+    <button onclick="addTask()">Ajouter</button>
+
+    <h2>Catégories</h2>
     <div class="form-group">
       <input type="text" id="newCategory" placeholder="Nouvelle catégorie" />
-      <button onclick="addCategory()">Ajouter catégorie</button>
+      <button onclick="addCategory()">Ajouter Catégorie</button>
     </div>
+    <ul id="categoryList"></ul>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const taskCategoryEl = document.getElementById('taskCategory');
-      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      let categories = JSON.parse(localStorage.getItem('categories')) || ["Sport", "Travail", "Perso", "Lecture", "Santé", "Apprentissage"];
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let categories = JSON.parse(localStorage.getItem('categories')) || [];
 
-      function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-      }
+    function addTask() {
+      const name = document.getElementById('taskName').value;
+      const type = document.getElementById('taskType').value;
+      const category = document.getElementById('taskCategory').value;
+      const points = parseInt(document.getElementById('taskPoints').value);
+      if (!name || !category || isNaN(points)) return alert("Tous les champs sont requis.");
 
-      function saveCategories() {
-        localStorage.setItem('categories', JSON.stringify(categories));
-      }
+      tasks.push({ name, type, category, points, done: false });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      alert("Tâche ajoutée ✅");
+    }
 
-      function addCategory() {
-        const newCat = document.getElementById('newCategory').value.trim();
-        if (newCat && !categories.includes(newCat)) {
-          categories.push(newCat);
-          saveCategories();
-          renderCategories();
-        }
-        document.getElementById('newCategory').value = '';
-      }
-
-      function renderCategories() {
-        taskCategoryEl.innerHTML = '';
-        categories.forEach(cat => {
-          const opt = document.createElement('option');
-          opt.value = cat;
-          opt.textContent = cat;
-          taskCategoryEl.appendChild(opt);
-        });
-      }
-
-      function addTask() {
-        const name = document.getElementById('taskName').value.trim();
-        const type = document.getElementById('taskType').value;
-        const category = taskCategoryEl.value;
-        const points = parseInt(document.getElementById('taskPoints').value) || 0;
-        if (!name || points <= 0) return;
-        const task = { name, type, category, points, done: false };
-        tasks.push(task);
-        saveTasks();
-        document.getElementById('taskName').value = '';
-        document.getElementById('taskPoints').value = '';
-        alert("Tâche ajoutée !");
-      }
-
+    function addCategory() {
+      const name = document.getElementById('newCategory').value;
+      if (!name) return;
+      categories.push(name);
+      localStorage.setItem('categories', JSON.stringify(categories));
       renderCategories();
-      window.addTask = addTask;
-      window.addCategory = addCategory;
-    });
+    }
+
+    function renderCategories() {
+      const list = document.getElementById('categoryList');
+      list.innerHTML = '';
+      categories.forEach((cat, i) => {
+        const li = document.createElement('li');
+        li.textContent = cat;
+        const btn = document.createElement('button');
+        btn.textContent = '❌';
+        btn.onclick = () => {
+          categories.splice(i, 1);
+          localStorage.setItem('categories', JSON.stringify(categories));
+          renderCategories();
+        };
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
+    renderCategories();
   </script>
 </body>
 </html>
