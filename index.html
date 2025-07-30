@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToDo Gamifié v3.1</title>
+  <title>ToDo Gamifié v3.2</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -35,6 +36,11 @@
       display: flex;
       align-items: center;
       border-bottom: 1px solid #eee;
+      transition: opacity 0.5s ease-out, transform 0.3s ease;
+    }
+    .fade-out {
+      opacity: 0;
+      transform: translateX(30px);
     }
     .tasks input[type="checkbox"] {
       margin-right: 1rem;
@@ -48,6 +54,13 @@
       padding: 0.3rem 0.6rem;
       border-radius: 4px;
       cursor: pointer;
+    }
+    .fade-in {
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .stats, .achievements {
       margin-top: 1rem;
@@ -79,7 +92,7 @@
   </style>
 </head>
 <body>
-  <header>ToDo Gamifié 🎮 <span style='font-size:0.8rem;'>(v3.1)</span></header>
+  <header>ToDo Gamifié 🎮 <span style="font-size:0.8rem;">(v3.2)</span></header>
   <nav style="text-align:center; padding: 0.5rem;">
     <a href="settings.html" style="color:#4CAF50; font-weight:bold; text-decoration:none;">⚙️ Réglages</a>
     <span> | </span>
@@ -114,7 +127,7 @@
 
       let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
       let history = JSON.parse(localStorage.getItem('history')) || [];
-      let xpTotal = 0;
+      let xpTotal = parseInt(localStorage.getItem('xpTotal')) || 0;
 
       function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -122,6 +135,10 @@
 
       function saveHistory() {
         localStorage.setItem('history', JSON.stringify(history));
+      }
+
+      function saveXP() {
+        localStorage.setItem('xpTotal', xpTotal);
       }
 
       function deleteTask(index) {
@@ -132,33 +149,51 @@
 
       function toggleTask(index) {
         const task = tasks[index];
+        if (task.done) return; // évite double clic
+
         task.done = true;
+        xpTotal += task.points;
+        saveXP();
         history.push({ ...task, date: new Date().toLocaleString() });
         saveHistory();
 
-        if (task.type === 'one-shot') {
-          tasks.splice(index, 1);
-        } else {
-          const clonedTask = { ...task, done: false };
-          tasks.splice(index, 1);
-          setTimeout(() => {
-            tasks.push(clonedTask);
+        const taskItems = document.querySelectorAll('#taskList li');
+        const currentItem = taskItems[index];
+        currentItem.classList.add('fade-out');
+
+        setTimeout(() => {
+          if (task.type === 'one-shot') {
+            tasks.splice(index, 1);
             saveTasks();
             renderTasks();
-          }, 2000);
-        }
+          } else {
+            const clonedTask = { ...task, done: false };
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+            setTimeout(() => {
+              tasks.push(clonedTask);
+              saveTasks();
+              renderTasks();
+              animateLastTask();
+            }, 1000);
+          }
+        }, 500);
 
-        saveTasks();
-        renderTasks();
+        updateStats();
+      }
+
+      function animateLastTask() {
+        const items = document.querySelectorAll('#taskList li');
+        if (items.length > 0) {
+          items[items.length - 1].classList.add('fade-in');
+        }
       }
 
       function renderTasks() {
         taskListEl.innerHTML = '';
-        xpTotal = 0;
 
         tasks.forEach((task, index) => {
-          if (task.done) xpTotal += task.points;
-
           const li = document.createElement('li');
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
