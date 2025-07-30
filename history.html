@@ -4,36 +4,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Historique v3.1</title>
+  <title>Historique</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; }
-    header { background: #4CAF50; color: white; padding: 1rem; text-align: center; font-size: 1.5rem; }
-    .container { max-width: 800px; margin: 2rem auto; background: white; padding: 1rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    ul { list-style: none; padding-left: 0; }
-    li { padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
-    a { text-decoration: none; color: #4CAF50; display: inline-block; margin-bottom: 1rem; }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 2rem; }
+    h1 { color: #4CAF50; }
+    .task-entry {
+      background: white;
+      margin-bottom: 0.5rem;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .date { font-size: 0.9rem; color: #888; }
   </style>
 </head>
 <body>
-  <header>Historique <span style="font-size:0.8rem;">(v3.1)</span></header>
-  <div class="container">
-    <a href="index.html">⬅️ Retour</a>
-    <ul id="historyList"></ul>
-  </div>
+  <h1>📜 Historique des tâches validées</h1>
+  <div id="historyList"></div>
 
   <script>
-    const history = JSON.parse(localStorage.getItem('history')) || [];
-    const list = document.getElementById('historyList');
+    const historyEl = document.getElementById("historyList");
+    const history = JSON.parse(localStorage.getItem("history")) || [];
 
-    if (history.length === 0) {
-      list.innerHTML = '<li>Aucune tâche accomplie pour l’instant.</li>';
-    } else {
-      history.reverse().forEach(task => {
-        const li = document.createElement('li');
-        li.textContent = `${task.name} (${task.category}, ${task.type}) [+${task.points} XP] - Le ${task.date}`;
-        list.appendChild(li);
-      });
-    }
+    history.reverse().forEach(task => {
+      const div = document.createElement("div");
+      div.className = "task-entry";
+      div.innerHTML = `
+        <strong>${task.name}</strong> (${task.type}, ${task.category})<br/>
+        <span class="date">${task.date}</span> [+${task.points} XP]
+      `;
+      historyEl.appendChild(div);
+    });
   </script>
 </body>
 </html>
