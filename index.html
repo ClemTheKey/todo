@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<!-- (contenu repris du canvas actuel déjà corrigé, donc pas répété ici pour concision) -->
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -211,6 +208,10 @@
 
       renderCategories();
       renderTasks();
+
+      // 🔐 Rendre les fonctions accessibles globalement
+      window.addTask = addTask;
+      window.addCategory = addCategory;
     });
   </script>
 </body>
