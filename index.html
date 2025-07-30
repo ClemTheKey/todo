@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToDo Gamifié</title>
+  <title>ToDo Gamifié v2</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -26,6 +26,9 @@
       padding: 1rem;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 1rem;
     }
     .tasks li {
       list-style: none;
@@ -67,14 +70,27 @@
 <body>
   <header>ToDo Gamifié 🎮</header>
   <div class="container">
+    <h2>Ajouter une tâche</h2>
+    <div class="form-group">
+      <input type="text" id="taskName" placeholder="Nom de la tâche" />
+      <select id="taskType">
+        <option value="quotidien">Quotidien</option>
+        <option value="hebdo">Hebdo</option>
+        <option value="one-shot">One-shot</option>
+      </select>
+      <select id="taskCategory">
+        <option value="Sport">Sport</option>
+        <option value="Travail">Travail</option>
+        <option value="Perso">Perso</option>
+        <option value="Lecture">Lecture</option>
+        <option value="Santé">Santé</option>
+        <option value="Apprentissage">Apprentissage</option>
+      </select>
+      <button onclick="addTask()">Ajouter</button>
+    </div>
+
     <h2>Tâches</h2>
-    <ul class="tasks" id="taskList">
-      <li><input type="checkbox" data-points="5"> Faire 30 min de sport (quotidien)</li>
-      <li><input type="checkbox" data-points="10"> Terminer un rapport (hebdo)</li>
-      <li><input type="checkbox" data-points="20"> Aller chez le dentiste (one-shot)</li>
-      <li><input type="checkbox" data-points="5"> Lire 10 pages (quotidien)</li>
-      <li><input type="checkbox" data-points="10"> Faire une séance de méditation (hebdo)</li>
-    </ul>
+    <ul class="tasks" id="taskList"></ul>
 
     <div class="stats">
       <h2>Profil</h2>
@@ -92,13 +108,63 @@
   </div>
 
   <script>
-    const taskList = document.querySelectorAll('#taskList input[type="checkbox"]');
+    const taskListEl = document.getElementById('taskList');
     const xpTotalEl = document.getElementById('xpTotal');
     const levelEl = document.getElementById('level');
     const progressFill = document.getElementById('progressFill');
     const badgesEl = document.getElementById('badges');
 
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     let xpTotal = 0;
+
+    function getPoints(type) {
+      if (type === 'quotidien') return 5;
+      if (type === 'hebdo') return 10;
+      return 20;
+    }
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function addTask() {
+      const name = document.getElementById('taskName').value.trim();
+      const type = document.getElementById('taskType').value;
+      const category = document.getElementById('taskCategory').value;
+      if (!name) return;
+      const task = { name, type, category, done: false };
+      tasks.push(task);
+      saveTasks();
+      renderTasks();
+    }
+
+    function toggleTask(index) {
+      tasks[index].done = !tasks[index].done;
+      saveTasks();
+      renderTasks();
+    }
+
+    function renderTasks() {
+      taskListEl.innerHTML = '';
+      xpTotal = 0;
+
+      tasks.forEach((task, index) => {
+        const points = getPoints(task.type);
+        if (task.done) xpTotal += points;
+
+        const li = document.createElement('li');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.done;
+        checkbox.addEventListener('change', () => toggleTask(index));
+
+        li.appendChild(checkbox);
+        li.append(`${task.name} (${task.type}, ${task.category}) [+${points} XP]`);
+        taskListEl.appendChild(li);
+      });
+
+      updateStats();
+    }
 
     function updateStats() {
       xpTotalEl.textContent = xpTotal;
@@ -116,15 +182,7 @@
       if (xpTotal >= 100) badgesEl.innerHTML += '<span class="badge">XP 100+</span>';
     }
 
-    taskList.forEach(task => {
-      task.addEventListener('change', () => {
-        const points = parseInt(task.dataset.points);
-        xpTotal += task.checked ? points : -points;
-        updateStats();
-      });
-    });
-
-    updateStats();
+    renderTasks();
   </script>
 </body>
 </html>
