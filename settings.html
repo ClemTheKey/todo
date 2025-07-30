@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réglages - ToDo Gamifié</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      background: #f0f4f8;
+      color: #333;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    a {
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>Réglages ⚙️</header>
+  <div class="container">
+    <p><a href="index.html">⬅️ Retour à l'accueil</a></p>
+    <h3>Ajouter une tâche</h3>
+    <div class="form-group">
+      <input type="text" id="taskName" placeholder="Nom de la tâche" />
+      <select id="taskType">
+        <option value="quotidien">Quotidien</option>
+        <option value="hebdo">Hebdo</option>
+        <option value="3-jours">Tous les 3 jours</option>
+        <option value="one-shot">One-shot</option>
+      </select>
+      <select id="taskCategory"></select>
+      <input type="number" id="taskPoints" placeholder="Points" min="1" />
+      <button onclick="addTask()">Ajouter</button>
+    </div>
+
+    <h3>Catégories personnalisées</h3>
+    <div class="form-group">
+      <input type="text" id="newCategory" placeholder="Nouvelle catégorie" />
+      <button onclick="addCategory()">Ajouter catégorie</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const taskCategoryEl = document.getElementById('taskCategory');
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      let categories = JSON.parse(localStorage.getItem('categories')) || ["Sport", "Travail", "Perso", "Lecture", "Santé", "Apprentissage"];
+
+      function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      function saveCategories() {
+        localStorage.setItem('categories', JSON.stringify(categories));
+      }
+
+      function addCategory() {
+        const newCat = document.getElementById('newCategory').value.trim();
+        if (newCat && !categories.includes(newCat)) {
+          categories.push(newCat);
+          saveCategories();
+          renderCategories();
+        }
+        document.getElementById('newCategory').value = '';
+      }
+
+      function renderCategories() {
+        taskCategoryEl.innerHTML = '';
+        categories.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = cat;
+          taskCategoryEl.appendChild(opt);
+        });
+      }
+
+      function addTask() {
+        const name = document.getElementById('taskName').value.trim();
+        const type = document.getElementById('taskType').value;
+        const category = taskCategoryEl.value;
+        const points = parseInt(document.getElementById('taskPoints').value) || 0;
+        if (!name || points <= 0) return;
+        const task = { name, type, category, points, done: false };
+        tasks.push(task);
+        saveTasks();
+        document.getElementById('taskName').value = '';
+        document.getElementById('taskPoints').value = '';
+        alert("Tâche ajoutée !");
+      }
+
+      renderCategories();
+      window.addTask = addTask;
+      window.addCategory = addCategory;
+    });
+  </script>
+</body>
+</html>
