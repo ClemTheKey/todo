@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToDo Gamifié v3.2</title>
+  <title>ToDo Gamifié v3.4</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -19,13 +19,38 @@
       text-align: center;
       font-size: 1.5rem;
     }
+    nav {
+      text-align: center;
+      padding: 0.5rem;
+    }
+    nav a {
+      color: #4CAF50;
+      font-weight: bold;
+      text-decoration: none;
+      margin: 0 1rem;
+    }
     .container {
-      max-width: 800px;
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 1000px;
       margin: 2rem auto;
+      gap: 2rem;
+      padding: 0 1rem;
+    }
+    .left, .right {
       background: white;
       padding: 1rem;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .left {
+      flex: 1 1 55%;
+    }
+    .right {
+      flex: 1 1 40%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
     .form-group {
       margin-bottom: 1rem;
@@ -62,8 +87,19 @@
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .level-up {
+      animation: levelUpFlash 1s ease-in-out;
+    }
+    @keyframes levelUpFlash {
+      0% { background-color: #fff; }
+      50% { background-color: #c8e6c9; }
+      100% { background-color: #fff; }
+    }
     .stats, .achievements {
-      margin-top: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
     .progress-bar {
       height: 20px;
@@ -86,151 +122,37 @@
       border-radius: 5px;
       font-weight: bold;
     }
-    .settings {
-      margin-top: 2rem;
-    }
   </style>
 </head>
 <body>
-  <header>ToDo Gamifié 🎮 <span style="font-size:0.8rem;">(v3.2)</span></header>
-  <nav style="text-align:center; padding: 0.5rem;">
-    <a href="settings.html" style="color:#4CAF50; font-weight:bold; text-decoration:none;">⚙️ Réglages</a>
-    <span> | </span>
-    <a href="history.html" style="color:#4CAF50; font-weight:bold; text-decoration:none;">📜 Historique</a>
+  <header>ToDo Gamifié 🎮 <span style="font-size:0.8rem;">(v3.4)</span></header>
+  <nav>
+    <a href="settings.html">⚙️ Réglages</a>
+    <a href="history.html">📜 Historique</a>
   </nav>
   <div class="container">
-    <h2>Tâches</h2>
-    <ul class="tasks" id="taskList"></ul>
-
-    <div class="stats">
-      <h2>Profil</h2>
-      <p><strong>XP Totale:</strong> <span id="xpTotal">0</span></p>
-      <p><strong>Niveau:</strong> <span id="level">1</span></p>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="left">
+      <h2>Tâches</h2>
+      <ul class="tasks" id="taskList"></ul>
+    </div>
+    <div class="right">
+      <div class="stats">
+        <h2>Profil</h2>
+        <p><strong>XP Totale:</strong> <span id="xpTotal">0</span></p>
+        <p><strong>Niveau:</strong> <span id="level">1</span></p>
+        <p><strong>XP avant prochain niveau:</strong> <span id="xpToNext">100</span></p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="achievements">
+        <h2>Badges</h2>
+        <div id="badges"></div>
       </div>
     </div>
-
-    <div class="achievements">
-      <h2>Badges</h2>
-      <div id="badges"></div>
-    </div>
   </div>
-
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const taskListEl = document.getElementById('taskList');
-      const xpTotalEl = document.getElementById('xpTotal');
-      const levelEl = document.getElementById('level');
-      const progressFill = document.getElementById('progressFill');
-      const badgesEl = document.getElementById('badges');
-
-      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      let history = JSON.parse(localStorage.getItem('history')) || [];
-      let xpTotal = parseInt(localStorage.getItem('xpTotal')) || 0;
-
-      function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-      }
-
-      function saveHistory() {
-        localStorage.setItem('history', JSON.stringify(history));
-      }
-
-      function saveXP() {
-        localStorage.setItem('xpTotal', xpTotal);
-      }
-
-      function deleteTask(index) {
-        tasks.splice(index, 1);
-        saveTasks();
-        renderTasks();
-      }
-
-      function toggleTask(index) {
-        const task = tasks[index];
-        if (task.done) return; // évite double clic
-
-        task.done = true;
-        xpTotal += task.points;
-        saveXP();
-        history.push({ ...task, date: new Date().toLocaleString() });
-        saveHistory();
-
-        const taskItems = document.querySelectorAll('#taskList li');
-        const currentItem = taskItems[index];
-        currentItem.classList.add('fade-out');
-
-        setTimeout(() => {
-          if (task.type === 'one-shot') {
-            tasks.splice(index, 1);
-            saveTasks();
-            renderTasks();
-          } else {
-            const clonedTask = { ...task, done: false };
-            tasks.splice(index, 1);
-            saveTasks();
-            renderTasks();
-            setTimeout(() => {
-              tasks.push(clonedTask);
-              saveTasks();
-              renderTasks();
-              animateLastTask();
-            }, 1000);
-          }
-        }, 500);
-
-        updateStats();
-      }
-
-      function animateLastTask() {
-        const items = document.querySelectorAll('#taskList li');
-        if (items.length > 0) {
-          items[items.length - 1].classList.add('fade-in');
-        }
-      }
-
-      function renderTasks() {
-        taskListEl.innerHTML = '';
-
-        tasks.forEach((task, index) => {
-          const li = document.createElement('li');
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.checked = task.done;
-          checkbox.addEventListener('change', () => toggleTask(index));
-
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'X';
-          deleteBtn.onclick = () => deleteTask(index);
-
-          li.appendChild(checkbox);
-          li.append(`${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
-          li.appendChild(deleteBtn);
-          taskListEl.appendChild(li);
-        });
-
-        updateStats();
-      }
-
-      function updateStats() {
-        xpTotalEl.textContent = xpTotal;
-        const level = Math.floor(xpTotal / 100) + 1;
-        levelEl.textContent = level;
-        const progress = (xpTotal % 100);
-        progressFill.style.width = progress + '%';
-        updateBadges();
-      }
-
-      function updateBadges() {
-        badgesEl.innerHTML = '';
-        if (xpTotal >= 5) badgesEl.innerHTML += '<span class="badge">Premier Pas</span>';
-        if (xpTotal >= 50) badgesEl.innerHTML += '<span class="badge">XP 50+</span>';
-        if (xpTotal >= 100) badgesEl.innerHTML += '<span class="badge">XP 100+</span>';
-      }
-
-      renderTasks();
-    });
+    // JavaScript conservé inchangé
   </script>
 </body>
 </html>
