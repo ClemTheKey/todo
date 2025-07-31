@@ -63,7 +63,10 @@
     <label>Ajouter une nouvelle tâche :</label>
     <input type="text" id="taskName" placeholder="Nom de la tâche">
     <label>Catégorie :</label>
-    <input type="text" id="taskCategory" placeholder="Ex: Sport">
+    <select id="taskCategory"></select>
+    <label>Nouvelle catégorie :</label>
+    <input type="text" id="newCategory" placeholder="Ex: 🌱 Bien-être">
+    <button onclick="addCategory()">Ajouter la catégorie</button>
     <label>Périodicité :</label>
     <select id="taskType">
       <option value="quotidien">Quotidien</option>
@@ -111,6 +114,38 @@
       localStorage.removeItem('history');
       alert("Historique vidé !");
     }
-  </script>
+  
+    const defaultCategories = ["🏃 Sport", "🍏 Alimentation", "💆 Healthy Life", "📈 Good Habit", "🏆 Succès"];
+    let categories = JSON.parse(localStorage.getItem("categories") || "null");
+    if (!categories) {
+      categories = defaultCategories;
+      localStorage.setItem("categories", JSON.stringify(categories));
+    }
+
+    const taskCategorySelect = document.getElementById('taskCategory');
+    function refreshCategoryOptions() {
+      taskCategorySelect.innerHTML = "";
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        taskCategorySelect.appendChild(opt);
+      });
+    }
+
+    function addCategory() {
+      const newCat = document.getElementById("newCategory").value.trim();
+      if (newCat && !categories.includes(newCat)) {
+        categories.push(newCat);
+        localStorage.setItem("categories", JSON.stringify(categories));
+        refreshCategoryOptions();
+        alert("Catégorie ajoutée !");
+        document.getElementById("newCategory").value = "";
+      }
+    }
+
+    refreshCategoryOptions();
+
+</script>
 </body>
 </html>
