@@ -37,6 +37,42 @@ function getXpToNextLevel(currentLevel) {
   return levelThresholds[currentLevel] - (xp - accumulated);
 }
 
+function updateBadgesAndGrade(level) {
+  const badgesEl = document.getElementById('badges');
+  const gradeIndex = Math.floor(level / 10);
+  const grade = grades[gradeIndex] || grades[grades.length - 1];
+
+  const profileEl = document.querySelector('.stats');
+  let gradeEl = document.getElementById('gradeText');
+  if (!gradeEl) {
+    gradeEl = document.createElement('p');
+    gradeEl.id = 'gradeText';
+    profileEl.appendChild(gradeEl);
+  }
+  gradeEl.innerHTML = `<strong>Grade :</strong> ${grade}`;
+
+  badgesEl.innerHTML = '';
+
+  if (xp >= 1000) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '🔥 1000 XP';
+    badgesEl.appendChild(badge);
+  }
+  if (level >= 10) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '🏆 Niveau 10+';
+    badgesEl.appendChild(badge);
+  }
+  if (tasks.length >= 10) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '📝 10 tâches';
+    badgesEl.appendChild(badge);
+  }
+}
+
 function render() {
   const taskList = document.getElementById('taskList');
   const xpTotal = document.getElementById('xpTotal');
@@ -71,6 +107,8 @@ function render() {
   const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
   const progress = Math.min(100, ((xp - previousXp) / levelXp) * 100);
   fill.style.width = `${progress}%`;
+
+  updateBadgesAndGrade(level);
 }
 
 function toggleTask(index, element) {
@@ -84,9 +122,8 @@ function toggleTask(index, element) {
     if (task.type === 'one-shot') {
       tasks.splice(index, 1);
     } else {
-      // Reset done and push a clone of the task
       const newTask = { ...task, done: false };
-      tasks.splice(index, 1); // remove current
+      tasks.splice(index, 1);
       setTimeout(() => {
         tasks.push(newTask);
         save();
@@ -104,53 +141,5 @@ function deleteTask(index) {
   save();
   render();
 }
-
-render();
-
-
-function updateBadgesAndGrade() {
-  const badgesEl = document.getElementById('badges');
-  const levelEl = document.getElementById('level');
-  const level = getLevel();
-  const gradeIndex = Math.floor(level / 10);
-  const grade = grades[gradeIndex] || grades[grades.length - 1];
-
-  const gradeP = document.createElement('p');
-  gradeP.innerHTML = "<strong>Grade:</strong> " + grade;
-
-  const parent = levelEl.parentElement;
-  const oldGrade = parent.querySelector('p.grade');
-  if (oldGrade) parent.removeChild(oldGrade);
-
-  gradeP.className = "grade";
-  parent.appendChild(gradeP);
-
-  // Exemple de badge simple (par XP)
-  badgesEl.innerHTML = '';
-  if (xp >= 1000) {
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = '🔥 1000 XP';
-    badgesEl.appendChild(badge);
-  }
-  if (level >= 10) {
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = '🏆 Niveau 10+';
-    badgesEl.appendChild(badge);
-  }
-  if (tasks.length >= 10) {
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = '📝 10 tâches';
-    badgesEl.appendChild(badge);
-  }
-}
-
-const originalRender = render;
-render = function () {
-  originalRender();
-  updateBadgesAndGrade();
-};
 
 render();
