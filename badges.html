@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des Badges</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 1rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    nav a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .badge-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .badge-card.locked {
+      opacity: 0.4;
+    }
+    .badge-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .badge-name {
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+    }
+    .badge-desc {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .badge-date {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #888;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏅 Liste des Badges</h1>
+  <nav>
+  <a href="index.html">🏠 Accueil</a> |
+  <a href="settings.html">⚙️ Réglages</a> |
+  <a href="history.html">📜 Historique</a> |
+  <a href="badges.html"><strong>🏅 Badges</strong></a>
+</nav>
+  <div class="badge-grid" id="badgeGrid"></div>
+  <footer>
+    Version 3.4.1 – construit avec ❤️ par Clément
+  </footer>
+  <script>
+    const badgesData = [
+      { name: "Premier pas", emoji: "👣", condition: "Compléter 1 tâche", key: "badge_1" },
+      { name: "Routine lancée", emoji: "🔥", condition: "Compléter 5 tâches", key: "badge_5" },
+      { name: "Acharné", emoji: "💪", condition: "Compléter 10 tâches", key: "badge_10" },
+      { name: "Maître du focus", emoji: "🧠", condition: "Compléter 20 tâches", key: "badge_20" },
+      { name: "Champion de la discipline", emoji: "🏆", condition: "Compléter 30 tâches", key: "badge_30" }
+    ];
+
+    const badgeGrid = document.getElementById('badgeGrid');
+    const badgeLog = JSON.parse(localStorage.getItem("badges") || '{}');
+
+    badgesData.forEach(badge => {
+      const card = document.createElement("div");
+      card.className = "badge-card";
+
+      const emoji = document.createElement("div");
+      emoji.className = "badge-icon";
+      emoji.textContent = badge.emoji;
+
+      const name = document.createElement("div");
+      name.className = "badge-name";
+      name.textContent = badge.name;
+
+      const desc = document.createElement("div");
+      desc.className = "badge-desc";
+      desc.textContent = badge.condition;
+
+      card.appendChild(emoji);
+      card.appendChild(name);
+      card.appendChild(desc);
+
+      const progress = document.createElement("div");
+      progress.className = "badge-progress";
+      let taskCount = parseInt(localStorage.getItem("taskCount") || "0");
+      const target = parseInt(badge.key.replace("badge_", ""));
+      progress.textContent = `Progression : ${Math.min(taskCount, target)}/${target}`;
+      progress.style.fontSize = "0.8rem";
+      progress.style.color = "#666";
+      card.appendChild(progress);
+
+
+      const earnedDate = badgeLog[badge.key];
+      if (earnedDate) {
+        const date = document.createElement("div");
+        date.className = "badge-date";
+        date.textContent = `Obtenu le : ${earnedDate}`;
+        card.appendChild(date);
+      } else {
+        card.classList.add("locked");
+      }
+
+      badgeGrid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

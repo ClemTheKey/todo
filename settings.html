@@ -2,104 +2,115 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Réglages</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 2rem; }
-    h1 { color: #4CAF50; }
-    .section { background: white; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; }
-    label { display: block; margin-top: 0.5rem; }
-    input, select { padding: 0.4rem; width: 100%; margin-top: 0.2rem; }
-    button { margin-top: 1rem; padding: 0.5rem 1rem; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    ul { list-style: none; padding-left: 0; }
-    li { padding: 0.3rem 0; display: flex; justify-content: space-between; }
-    nav a { font-weight: bold; text-decoration: none; color: #4CAF50; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 1rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    nav a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 1rem 0 0.3rem;
+    }
+    input, select, button {
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <nav><a href="index.html">← Retour</a></nav>
   <h1>⚙️ Réglages</h1>
-
-  <div class="section">
-    <h2>Ajouter une catégorie</h2>
-    <label>Nom</label>
-    <input type="text" id="catName" placeholder="ex: Lecture" />
-    <label>Emoji</label>
-    <input type="text" id="catEmoji" placeholder="ex: 📚" />
-    <button onclick="addCategory()">Ajouter la catégorie</button>
-    <ul id="categoryList"></ul>
-  </div>
-
-  <div class="section">
-    <h2>Ajouter une tâche</h2>
-    <label>Nom</label>
-    <input type="text" id="taskName" />
-    <label>Catégorie</label>
-    <select id="taskCategory"></select>
-    <label>Points</label>
-    <input type="number" id="taskPoints" />
-    <label>Type</label>
+  <nav>
+    <a href="index.html">🏠 Accueil</a> |
+    <a href="settings.html"><strong>⚙️ Réglages</strong></a> |
+    <a href="history.html">📜 Historique</a> |
+    <a href="badges.html">🏅 Badges</a>
+  </nav>
+  <div class="container">
+    <label>Ajouter une nouvelle tâche :</label>
+    <input type="text" id="taskName" placeholder="Nom de la tâche">
+    <label>Catégorie :</label>
+    <input type="text" id="taskCategory" placeholder="Ex: Sport">
+    <label>Périodicité :</label>
     <select id="taskType">
-      <option value="one-shot">One-shot</option>
-      <option value="daily">Quotidienne</option>
-      <option value="weekly">Hebdomadaire</option>
-      <option value="3days">Tous les 3 jours</option>
+      <option value="quotidien">Quotidien</option>
+      <option value="hebdomadaire">Hebdomadaire</option>
+      <option value="ponctuel">Ponctuel</option>
+      <option value="3j">Tous les 3 jours</option>
     </select>
-    <button onclick="addTask()">Ajouter la tâche</button>
+    <label>XP gagnée :</label>
+    <input type="number" id="taskPoints" value="10">
+    <button onclick="addTaskFromSettings()">Ajouter</button>
+
+    <hr>
+
+    <button onclick="resetProfile()">🔄 Réinitialiser le profil</button>
+    <button onclick="clearHistory()">🗑️ Vider l'historique</button>
   </div>
-
+  <footer>
+    Version 3.4.1 – construit avec ❤️ par Clément
+  </footer>
   <script>
-    const catListEl = document.getElementById("categoryList");
-    const catSelect = document.getElementById("taskCategory");
+    function addTaskFromSettings() {
+      const name = document.getElementById('taskName').value.trim();
+      const category = document.getElementById('taskCategory').value.trim();
+      const type = document.getElementById('taskType').value;
+      const points = parseInt(document.getElementById('taskPoints').value);
 
-    let categories = JSON.parse(localStorage.getItem("categories")) || [];
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      if (!name || !category || isNaN(points)) return alert("Champs invalides.");
 
-    function renderCategories() {
-      catListEl.innerHTML = "";
-      catSelect.innerHTML = "";
-      categories.forEach((c, i) => {
-        const li = document.createElement("li");
-        li.textContent = `${c.emoji} ${c.name}`;
-        const del = document.createElement("button");
-        del.textContent = "Supprimer";
-        del.onclick = () => {
-          categories.splice(i, 1);
-          localStorage.setItem("categories", JSON.stringify(categories));
-          renderCategories();
-        };
-        li.appendChild(del);
-        catListEl.appendChild(li);
-
-        const opt = document.createElement("option");
-        opt.value = c.name;
-        opt.textContent = `${c.emoji} ${c.name}`;
-        catSelect.appendChild(opt);
-      });
-    }
-
-    function addCategory() {
-      const name = document.getElementById("catName").value.trim();
-      const emoji = document.getElementById("catEmoji").value.trim();
-      if (!name || !emoji) return alert("Complète les deux champs.");
-      categories.push({ name, emoji });
-      localStorage.setItem("categories", JSON.stringify(categories));
-      renderCategories();
-    }
-
-    function addTask() {
-      const name = document.getElementById("taskName").value.trim();
-      const category = document.getElementById("taskCategory").value;
-      const points = parseInt(document.getElementById("taskPoints").value);
-      const type = document.getElementById("taskType").value;
-      if (!name || isNaN(points)) return alert("Nom et points obligatoires.");
-      tasks.push({ name, category, points, type, done: false });
-      localStorage.setItem("tasks", JSON.stringify(tasks));
+      const task = { name, category, type, points, done: false };
+      const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      tasks.push(task);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
       alert("Tâche ajoutée !");
     }
 
-    renderCategories();
+    function resetProfile() {
+      localStorage.setItem('xp', '0');
+      localStorage.setItem('badges', '{}');
+      localStorage.setItem('taskCount', '0');
+      localStorage.setItem('level', '1');
+      alert("Profil réinitialisé !");
+    }
+
+    function clearHistory() {
+      localStorage.removeItem('history');
+      alert("Historique vidé !");
+    }
   </script>
 </body>
 </html>
