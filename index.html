@@ -137,17 +137,17 @@
     <div class="left">
       <h2>Tâches</h2>
 <div class="form-group">
-  <label for="categoryFilter">Filtrer par catégorie :</label>
-  <select id="categoryFilter" onchange="filterTasksByCategory()">
+  <label for="typeFilter">Filtrer par périodicité :</label>
+  <select id="typeFilter" onchange="filterTasksByType()">
     <option value="">Toutes</option>
-    <option value="🏃 Sport">🏃 Sport</option>
-    <option value="🍏 Alimentation">🍏 Alimentation</option>
-    <option value="💆 Healthy Life">💆 Healthy Life</option>
-    <option value="📈 Good Habit">📈 Good Habit</option>
-    <option value="🏆 Succès">🏆 Succès</option>
-    <option value="📦 Divers">📦 Divers</option>
+    <option value="quotidien">Quotidien</option>
+    <option value="hebdomadaire">Hebdomadaire</option>
+    <option value="ponctuel">Ponctuel</option>
+    <option value="3j">Tous les 3 jours</option>
   </select>
 </div>
+
+
 
       <ul class="tasks" id="taskList"></ul>
     </div>
@@ -173,6 +173,19 @@ function filterTasksByCategory() {
   const allTasks = document.querySelectorAll("#taskList li");
   allTasks.forEach(li => {
     if (!selected || li.dataset.category === selected) {
+      li.style.display = "flex";
+    } else {
+      li.style.display = "none";
+    }
+  });
+}
+
+
+function filterTasksByType() {
+  const selectedType = document.getElementById("typeFilter").value;
+  const taskList = document.querySelectorAll("#taskList li");
+  taskList.forEach(li => {
+    if (!selectedType || li.dataset.type === selectedType) {
       li.style.display = "flex";
     } else {
       li.style.display = "none";
