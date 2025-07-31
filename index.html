@@ -136,6 +136,19 @@
   <div class="container">
     <div class="left">
       <h2>Tâches</h2>
+<div class="form-group">
+  <label for="categoryFilter">Filtrer par catégorie :</label>
+  <select id="categoryFilter" onchange="filterTasksByCategory()">
+    <option value="">Toutes</option>
+    <option value="🏃 Sport">🏃 Sport</option>
+    <option value="🍏 Alimentation">🍏 Alimentation</option>
+    <option value="💆 Healthy Life">💆 Healthy Life</option>
+    <option value="📈 Good Habit">📈 Good Habit</option>
+    <option value="🏆 Succès">🏆 Succès</option>
+    <option value="📦 Divers">📦 Divers</option>
+  </select>
+</div>
+
       <ul class="tasks" id="taskList"></ul>
     </div>
     <div class="right">
@@ -154,7 +167,20 @@
       </div>
     </div>
   </div>
-  <script src="app.js"></script>
+  <script src="app.js">
+function filterTasksByCategory() {
+  const selected = document.getElementById("categoryFilter").value;
+  const allTasks = document.querySelectorAll("#taskList li");
+  allTasks.forEach(li => {
+    if (!selected || li.dataset.category === selected) {
+      li.style.display = "flex";
+    } else {
+      li.style.display = "none";
+    }
+  });
+}
+
+</script>
 
   <footer style="text-align:center; padding:1rem; color:#777; font-size:0.9rem;">
     Version 3.4.1 – construit avec ❤️ par Clément
