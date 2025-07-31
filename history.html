@@ -2,47 +2,99 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Historique</title>
+  <meta charset="UTF-8">
+  <title>Historique des Tâches</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 2rem; }
-    h1 { color: #4CAF50; }
-    .task-entry {
-      background: white;
-      margin-bottom: 0.5rem;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
       padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      color: #333;
     }
-    .date { font-size: 0.9rem; color: #888; }
-    nav a { font-weight: bold; text-decoration: none; color: #4CAF50; }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.6rem;
+      text-align: left;
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    nav {
+      text-align: center;
+      margin: 1rem 0;
+    }
+    nav a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <nav><a href="index.html">← Retour</a></nav>
-  <h1>📜 Historique des tâches validées</h1>
-  <div id="historyList"></div>
-
+  <h1>📜 Historique des Tâches</h1>
+  <nav>
+    <a href="index.html">⬅️ Retour à l'accueil</a>
+  </nav>
+  <table>
+    <thead>
+      <tr>
+        <th>Tâche</th>
+        <th>Catégorie</th>
+        <th>Périodicité</th>
+        <th>Points</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="historyTable"></tbody>
+  </table>
+  <footer>
+    Version 3.4.1 – construit avec ❤️ par Clément
+  </footer>
   <script>
-    const historyEl = document.getElementById("historyList");
-    const history = JSON.parse(localStorage.getItem("history")) || [];
-    const categories = JSON.parse(localStorage.getItem("categories")) || [];
+    const table = document.getElementById('historyTable');
+    const history = JSON.parse(localStorage.getItem('history') || '[]');
 
-    function getEmoji(catName) {
-      const found = categories.find(c => c.name === catName);
-      return found ? found.emoji : "📌";
+    if (history.length === 0) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 5;
+      cell.textContent = "Aucune tâche validée pour l'instant.";
+      row.appendChild(cell);
+      table.appendChild(row);
+    } else {
+      history.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.name}</td>
+          <td>${entry.category}</td>
+          <td>${entry.type}</td>
+          <td>${entry.points}</td>
+          <td>${entry.date}</td>
+        `;
+        table.appendChild(row);
+      });
     }
-
-    history.reverse().forEach(task => {
-      const div = document.createElement("div");
-      div.className = "task-entry";
-      div.innerHTML = `
-        <strong>${getEmoji(task.category)} ${task.name}</strong> (${task.type}, ${task.category})<br/>
-        <span class="date">${task.date}</span> [+${task.points} XP]
-      `;
-      historyEl.appendChild(div);
-    });
   </script>
 </body>
 </html>
