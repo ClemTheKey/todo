@@ -50,7 +50,7 @@ function render() {
     const box = document.createElement('input');
     box.type = 'checkbox';
     box.checked = task.done;
-    box.onchange = () => toggleTask(i);
+    box.onchange = () => toggleTask(i, li);
 
     const del = document.createElement('button');
     del.textContent = 'X';
@@ -73,13 +73,30 @@ function render() {
   fill.style.width = `${progress}%`;
 }
 
-function toggleTask(index) {
-  if (!tasks[index].done) {
-    tasks[index].done = true;
-    xp += tasks[index].points;
-  }
-  save();
-  render();
+function toggleTask(index, element) {
+  const task = tasks[index];
+  task.done = true;
+  xp += task.points;
+
+  element.classList.add('fade-out');
+
+  setTimeout(() => {
+    if (task.type === 'one-shot') {
+      tasks.splice(index, 1);
+    } else {
+      // Reset done and push a clone of the task
+      const newTask = { ...task, done: false };
+      tasks.splice(index, 1); // remove current
+      setTimeout(() => {
+        tasks.push(newTask);
+        save();
+        render();
+      }, 2000);
+      return;
+    }
+    save();
+    render();
+  }, 600);
 }
 
 function deleteTask(index) {
