@@ -86,21 +86,26 @@
     Version 3.4.1 – construit avec ❤️ par Clément
   </footer>
   <script>
+    
     function addTaskFromSettings() {
       const name = document.getElementById('taskName').value.trim();
-      const category = document.getElementById(\'taskCategory\').value;
+      const category = document.getElementById('taskCategory').value;
       const type = document.getElementById('taskType').value;
       const points = parseInt(document.getElementById('taskPoints').value);
 
-      if (!name || !category || isNaN(points)) return alert("Champs invalides.");
+      if (!name || !category || isNaN(points)) {
+        alert("Champs invalides.");
+        return;
+      }
 
       const task = { name, category, type, points, done: false };
       const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
       tasks.push(task);
       localStorage.setItem('tasks', JSON.stringify(tasks));
       alert("Tâche ajoutée !");
+      document.getElementById('taskName').value = "";
     }
-
+    
     function resetProfile() {
       localStorage.setItem('xp', '0');
       localStorage.setItem('badges', '{}');
