@@ -90,7 +90,38 @@ function render() {
   taskList.innerHTML = '';
   const filteredTasks = applyFilters(tasks);
 
+  
+  let grouped = {};
+  const groupBy = document.getElementById('groupBy')?.value || 'category';
   filteredTasks.forEach((task, i) => {
+    const key = task[groupBy] || 'Autre';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push({ task, index: i });
+  });
+
+  Object.keys(grouped).forEach(group => {
+    const title = document.createElement('h3');
+    title.textContent = group;
+    taskList.appendChild(title);
+    grouped[group].forEach(({ task, index }) => {
+      const li = document.createElement('li');
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = task.done;
+      box.onchange = () => toggleTask(index, li);
+
+      const del = document.createElement('button');
+      del.textContent = 'X';
+      del.onclick = () => deleteTask(index);
+
+      const emoji = categoryEmojis[task.category] || '🔸';
+      li.appendChild(box);
+      li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
+      li.appendChild(del);
+      taskList.appendChild(li);
+    });
+  });
+
     const li = document.createElement('li');
     const box = document.createElement('input');
     box.type = 'checkbox';
@@ -152,7 +183,6 @@ function deleteTask(index) {
 
 function resetProfile() {
   if (confirm("Réinitialiser votre profil ?")) {
-    tasks = [];
     xp = 0;
     save();
     render();
@@ -185,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterBar = document.createElement("div");
   filterBar.style.marginBottom = "1rem";
 
-  filterBar.innerHTML = `
+  filterBar.innerHTML = `    <label>Regrouper par :       <select id="groupBy">        <option value="category">Catégorie</option>        <option value="type">Périodicité</option>      </select>    </label><br><br>
     <label>Catégorie : 
       <select id="filterCategory">
         <option value="all">Toutes</option>
@@ -212,3 +242,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   render();
 });
+
+
+function saveFilterPreferences() {
+  localStorage.setItem('filterCategory', document.getElementById('filterCategory')?.value);
+  localStorage.setItem('filterFrequency', document.getElementById('filterFrequency')?.value);
+  localStorage.setItem('groupBy', document.getElementById('groupBy')?.value);
+}
+
+function loadFilterPreferences() {
+  if (document.getElementById('filterCategory')) {
+    document.getElementById('filterCategory').value = localStorage.getItem('filterCategory') || 'all';
+    document.getElementById('filterFrequency').value = localStorage.getItem('filterFrequency') || 'all';
+    document.getElementById('groupBy').value = localStorage.getItem('groupBy') || 'category';
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadFilterPreferences();
+  render();
+});
+
+document.addEventListener("change", (e) => {
+  if (["filterCategory", "filterFrequency", "groupBy"].includes(e.target.id)) {
+    saveFilterPreferences();
+    render();
+  }
+});
+
+// Remplacer dans render() le bloc qui crée les titres de groupe
+// pour ajouter des couleurs et un bouton de pliage/dépliage
