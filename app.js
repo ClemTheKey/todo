@@ -106,3 +106,51 @@ function deleteTask(index) {
 }
 
 render();
+
+
+function updateBadgesAndGrade() {
+  const badgesEl = document.getElementById('badges');
+  const levelEl = document.getElementById('level');
+  const level = getLevel();
+  const gradeIndex = Math.floor(level / 10);
+  const grade = grades[gradeIndex] || grades[grades.length - 1];
+
+  const gradeP = document.createElement('p');
+  gradeP.innerHTML = "<strong>Grade:</strong> " + grade;
+
+  const parent = levelEl.parentElement;
+  const oldGrade = parent.querySelector('p.grade');
+  if (oldGrade) parent.removeChild(oldGrade);
+
+  gradeP.className = "grade";
+  parent.appendChild(gradeP);
+
+  // Exemple de badge simple (par XP)
+  badgesEl.innerHTML = '';
+  if (xp >= 1000) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '🔥 1000 XP';
+    badgesEl.appendChild(badge);
+  }
+  if (level >= 10) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '🏆 Niveau 10+';
+    badgesEl.appendChild(badge);
+  }
+  if (tasks.length >= 10) {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = '📝 10 tâches';
+    badgesEl.appendChild(badge);
+  }
+}
+
+const originalRender = render;
+render = function () {
+  originalRender();
+  updateBadgesAndGrade();
+};
+
+render();
