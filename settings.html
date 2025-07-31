@@ -63,9 +63,14 @@
     <label>Ajouter une nouvelle tâche :</label>
     <input type="text" id="taskName" placeholder="Nom de la tâche">
     <label>Catégorie :</label>
-<select id="taskCategory">
-  <option value="🏃 Sport">🏃 Sport</option><option value="🍏 Alimentation">🍏 Alimentation</option><option value="💆 Healthy Life">💆 Healthy Life</option><option value="📈 Good Habit">📈 Good Habit</option><option value="🏆 Succès">🏆 Succès</option><option value="📦 Divers">📦 Divers</option>
-</select>
+    <select id="taskCategory">
+      <option>🏃 Sport</option>
+      <option>🍏 Alimentation</option>
+      <option>💆 Healthy Life</option>
+      <option>📈 Good Habit</option>
+      <option>🏆 Succès</option>
+      <option>📦 Divers</option>
+    </select>
     <label>Périodicité :</label>
     <select id="taskType">
       <option value="quotidien">Quotidien</option>
@@ -85,8 +90,8 @@
   <footer>
     Version 3.4.1 – construit avec ❤️ par Clément
   </footer>
+
   <script>
-    
     function addTaskFromSettings() {
       const name = document.getElementById('taskName').value.trim();
       const category = document.getElementById('taskCategory').value;
@@ -105,7 +110,7 @@
       alert("Tâche ajoutée !");
       document.getElementById('taskName').value = "";
     }
-    
+
     function resetProfile() {
       localStorage.setItem('xp', '0');
       localStorage.setItem('badges', '{}');
@@ -118,15 +123,6 @@
       localStorage.removeItem('history');
       alert("Historique vidé !");
     }
-  
-    
-        alert("Catégorie ajoutée !");
-        document.getElementById("newCategory").value = "";
-      }
-    }
-
-    refreshCategoryOptions();
-
-</script>
+  </script>
 </body>
 </html>
