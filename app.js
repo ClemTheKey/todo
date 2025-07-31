@@ -80,6 +80,7 @@ function applyFilters(tasks) {
   );
 }
 
+
 function render() {
   const taskList = document.getElementById('taskList');
   const xpTotal = document.getElementById('xpTotal');
@@ -89,10 +90,9 @@ function render() {
 
   taskList.innerHTML = '';
   const filteredTasks = applyFilters(tasks);
-
-  
-  let grouped = {};
   const groupBy = document.getElementById('groupBy')?.value || 'category';
+
+  let grouped = {};
   filteredTasks.forEach((task, i) => {
     const key = task[groupBy] || 'Autre';
     if (!grouped[key]) grouped[key] = [];
@@ -100,9 +100,24 @@ function render() {
   });
 
   Object.keys(grouped).forEach(group => {
+    const groupContainer = document.createElement('div');
+    groupContainer.className = 'task-group';
+
     const title = document.createElement('h3');
     title.textContent = group;
-    taskList.appendChild(title);
+    title.style.background = '#e0f7fa';
+    title.style.padding = '0.3rem';
+    title.style.borderRadius = '5px';
+    title.style.cursor = 'pointer';
+    title.style.userSelect = 'none';
+
+    const taskHolder = document.createElement('ul');
+    taskHolder.style.marginTop = '0.5rem';
+
+    title.onclick = () => {
+      taskHolder.style.display = taskHolder.style.display === 'none' ? '' : 'none';
+    };
+
     grouped[group].forEach(({ task, index }) => {
       const li = document.createElement('li');
       const box = document.createElement('input');
@@ -118,25 +133,12 @@ function render() {
       li.appendChild(box);
       li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
       li.appendChild(del);
-      taskList.appendChild(li);
+      taskHolder.appendChild(li);
     });
-  });
 
-    const li = document.createElement('li');
-    const box = document.createElement('input');
-    box.type = 'checkbox';
-    box.checked = task.done;
-    box.onchange = () => toggleTask(i, li);
-
-    const del = document.createElement('button');
-    del.textContent = 'X';
-    del.onclick = () => deleteTask(i);
-
-    const emoji = categoryEmojis[task.category] || '🔸';
-    li.appendChild(box);
-    li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
-    li.appendChild(del);
-    taskList.appendChild(li);
+    groupContainer.appendChild(title);
+    groupContainer.appendChild(taskHolder);
+    taskList.appendChild(groupContainer);
   });
 
   const level = getLevel();
@@ -150,6 +152,7 @@ function render() {
 
   updateBadgesAndGrade(level);
 }
+
 
 function toggleTask(index, element) {
   const task = tasks[index];
