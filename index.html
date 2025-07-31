@@ -137,8 +137,8 @@
     <div class="left">
       <h2>Tâches</h2>
 <div class="form-group">
-  <label for="typeFilter">Filtrer par périodicité :</label>
-  <select id="typeFilter" onchange="filterTasksByType()">
+  <label for="filterPeriod">Filtrer par périodicité :</label>
+  <select id="filterPeriod" onchange="applyFilter()">
     <option value="">Toutes</option>
     <option value="quotidien">Quotidien</option>
     <option value="hebdomadaire">Hebdomadaire</option>
@@ -146,6 +146,8 @@
     <option value="3j">Tous les 3 jours</option>
   </select>
 </div>
+
+
 
 
 
@@ -193,11 +195,29 @@ function filterTasksByType() {
   });
 }
 
+
+function applyFilter() {
+  const selectedType = document.getElementById("filterPeriod").value;
+  const tasks = document.querySelectorAll("#taskList li");
+  tasks.forEach(task => {
+    const type = task.dataset.type;
+    if (!selectedType || selectedType === type) {
+      task.style.display = "flex";
+    } else {
+      task.style.display = "none";
+    }
+  });
+}
+
 </script>
 
   <footer style="text-align:center; padding:1rem; color:#777; font-size:0.9rem;">
     Version 3.4.1 – construit avec ❤️ par Clément
   </footer>
 
+
+  <footer style="text-align:center;padding:1rem;color:#888;font-size:0.8rem;">
+    ToDo Gamifié v3.4.2
+  </footer>
 </body>
 </html>
