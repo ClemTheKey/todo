@@ -143,3 +143,153 @@ function deleteTask(index) {
 }
 
 render();
+
+
+function resetProfile() {
+  if (confirm("Voulez-vous vraiment réinitialiser votre profil ?")) {
+    tasks = [];
+    xp = 0;
+    save();
+    render();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const stats = document.querySelector(".stats");
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Réinitialiser le profil";
+  resetBtn.style.marginTop = "1rem";
+  resetBtn.style.backgroundColor = "#f44336";
+  resetBtn.style.color = "white";
+  resetBtn.style.border = "none";
+  resetBtn.style.padding = "0.5rem 1rem";
+  resetBtn.style.borderRadius = "6px";
+  resetBtn.style.cursor = "pointer";
+  resetBtn.onclick = resetProfile;
+  stats.appendChild(resetBtn);
+});
+
+
+function resetHistory() {
+  if (confirm("Voulez-vous vraiment supprimer l'historique ?")) {
+    localStorage.removeItem('history');
+    alert("Historique supprimé !");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.querySelector("nav");
+  const resetHistBtn = document.createElement("button");
+  resetHistBtn.textContent = "🗑️ Vider l'historique";
+  resetHistBtn.style.marginLeft = "1rem";
+  resetHistBtn.style.backgroundColor = "#ff9800";
+  resetHistBtn.style.color = "white";
+  resetHistBtn.style.border = "none";
+  resetHistBtn.style.padding = "0.3rem 0.8rem";
+  resetHistBtn.style.borderRadius = "6px";
+  resetHistBtn.style.cursor = "pointer";
+  resetHistBtn.onclick = resetHistory;
+  nav.appendChild(resetHistBtn);
+});
+
+
+const categoryEmojis = {
+  Sport: "💪",
+  Alimentation: "🍎",
+  "Healthy Life": "🧘",
+  "Good Habit": "📘",
+  "Succès": "🚀"
+};
+
+function applyFilters(tasks) {
+  const catFilter = document.getElementById('filterCategory')?.value;
+  const freqFilter = document.getElementById('filterFrequency')?.value;
+
+  return tasks.filter(task => {
+    const matchCat = !catFilter || catFilter === "all" || task.category === catFilter;
+    const matchFreq = !freqFilter || freqFilter === "all" || task.type === freqFilter;
+    return matchCat && matchFreq;
+  });
+}
+
+function render() {
+  const taskList = document.getElementById('taskList');
+  const xpTotal = document.getElementById('xpTotal');
+  const levelEl = document.getElementById('level');
+  const xpToNext = document.getElementById('xpToNext');
+  const fill = document.getElementById('progressFill');
+
+  taskList.innerHTML = '';
+  const filteredTasks = applyFilters(tasks);
+
+  filteredTasks.forEach((task, i) => {
+    const li = document.createElement('li');
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = task.done;
+    box.onchange = () => toggleTask(i, li);
+
+    const del = document.createElement('button');
+    del.textContent = 'X';
+    del.onclick = () => deleteTask(i);
+
+    const emoji = categoryEmojis[task.category] || '🔸';
+
+    li.appendChild(box);
+    li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
+    li.appendChild(del);
+    taskList.appendChild(li);
+  });
+
+  const level = getLevel();
+  xpTotal.textContent = xp;
+  levelEl.textContent = level;
+  xpToNext.textContent = getXpToNextLevel(level);
+
+  const levelXp = levelThresholds[level] || 1;
+  const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
+  const progress = Math.min(100, ((xp - previousXp) / levelXp) * 100);
+  fill.style.width = `${progress}%`;
+
+  updateBadgesAndGrade(level);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Ajout des filtres
+  const left = document.querySelector(".left");
+  const filterBar = document.createElement("div");
+  filterBar.style.marginBottom = "1rem";
+
+  const catLabel = document.createElement("label");
+  catLabel.textContent = "Catégorie : ";
+  const catSelect = document.createElement("select");
+  catSelect.id = "filterCategory";
+  catSelect.innerHTML = `
+    <option value="all">Toutes</option>
+    <option value="Sport">💪 Sport</option>
+    <option value="Alimentation">🍎 Alimentation</option>
+    <option value="Healthy Life">🧘 Healthy Life</option>
+    <option value="Good Habit">📘 Good Habit</option>
+    <option value="Succès">🚀 Succès</option>
+  `;
+  catSelect.onchange = render;
+
+  const freqLabel = document.createElement("label");
+  freqLabel.textContent = "  Périodicité : ";
+  const freqSelect = document.createElement("select");
+  freqSelect.id = "filterFrequency";
+  freqSelect.innerHTML = `
+    <option value="all">Toutes</option>
+    <option value="daily">Quotidienne</option>
+    <option value="weekly">Hebdomadaire</option>
+    <option value="3days">Tous les 3 jours</option>
+    <option value="one-shot">Ponctuelle</option>
+  `;
+  freqSelect.onchange = render;
+
+  filterBar.appendChild(catLabel);
+  filterBar.appendChild(catSelect);
+  filterBar.appendChild(freqLabel);
+  filterBar.appendChild(freqSelect);
+  left.insertBefore(filterBar, left.querySelector("ul"));
+});
