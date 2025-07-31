@@ -158,6 +158,7 @@ function toggleTask(index, element) {
   const task = tasks[index];
   task.done = true;
   xp += task.points;
+  saveToHistory(task);
   element.classList.add('fade-out');
 
   setTimeout(() => {
@@ -275,3 +276,18 @@ document.addEventListener("change", (e) => {
 
 // Remplacer dans render() le bloc qui crée les titres de groupe
 // pour ajouter des couleurs et un bouton de pliage/dépliage
+
+
+
+function saveToHistory(task) {
+  const history = JSON.parse(localStorage.getItem('history') || '[]');
+  const entry = {
+    name: task.name,
+    category: task.category,
+    type: task.type,
+    points: task.points,
+    date: new Date().toLocaleString()
+  };
+  history.push(entry);
+  localStorage.setItem('history', JSON.stringify(history));
+}
