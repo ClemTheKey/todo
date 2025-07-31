@@ -17,6 +17,14 @@ const grades = [
   "Poulet", "En cannes", "Patron du game", "Monte Cristo", "Meilleure version de moi même"
 ];
 
+const categoryEmojis = {
+  Sport: "💪",
+  Alimentation: "🍎",
+  "Healthy Life": "🧘",
+  "Good Habit": "📘",
+  "Succès": "🚀"
+};
+
 function save() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
   localStorage.setItem('xp', xp.toString());
@@ -52,25 +60,24 @@ function updateBadgesAndGrade(level) {
   gradeEl.innerHTML = `<strong>Grade :</strong> ${grade}`;
 
   badgesEl.innerHTML = '';
-
   if (xp >= 1000) {
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = '🔥 1000 XP';
-    badgesEl.appendChild(badge);
+    badgesEl.innerHTML += `<span class="badge">🔥 1000 XP</span>`;
   }
   if (level >= 10) {
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = '🏆 Niveau 10+';
-    badgesEl.appendChild(badge);
+    badgesEl.innerHTML += `<span class="badge">🏆 Niveau 10+</span>`;
   }
   if (tasks.length >= 10) {
-    const badge = document.createElement('span');
-    badge.className = 'badge';
-    badge.textContent = '📝 10 tâches';
-    badgesEl.appendChild(badge);
+    badgesEl.innerHTML += `<span class="badge">📝 10 tâches</span>`;
   }
+}
+
+function applyFilters(tasks) {
+  const cat = document.getElementById('filterCategory')?.value;
+  const freq = document.getElementById('filterFrequency')?.value;
+  return tasks.filter(t =>
+    (!cat || cat === 'all' || t.category === cat) &&
+    (!freq || freq === 'all' || t.type === freq)
+  );
 }
 
 function render() {
@@ -81,7 +88,9 @@ function render() {
   const fill = document.getElementById('progressFill');
 
   taskList.innerHTML = '';
-  tasks.forEach((task, i) => {
+  const filteredTasks = applyFilters(tasks);
+
+  filteredTasks.forEach((task, i) => {
     const li = document.createElement('li');
     const box = document.createElement('input');
     box.type = 'checkbox';
@@ -92,8 +101,9 @@ function render() {
     del.textContent = 'X';
     del.onclick = () => deleteTask(i);
 
+    const emoji = categoryEmojis[task.category] || '🔸';
     li.appendChild(box);
-    li.append(`${task.name} [+${task.points} XP]`);
+    li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
     li.appendChild(del);
     taskList.appendChild(li);
   });
@@ -105,8 +115,7 @@ function render() {
 
   const levelXp = levelThresholds[level] || 1;
   const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
-  const progress = Math.min(100, ((xp - previousXp) / levelXp) * 100);
-  fill.style.width = `${progress}%`;
+  fill.style.width = Math.min(100, ((xp - previousXp) / levelXp) * 100) + "%";
 
   updateBadgesAndGrade(level);
 }
@@ -115,7 +124,6 @@ function toggleTask(index, element) {
   const task = tasks[index];
   task.done = true;
   xp += task.points;
-
   element.classList.add('fade-out');
 
   setTimeout(() => {
@@ -142,11 +150,8 @@ function deleteTask(index) {
   render();
 }
 
-render();
-
-
 function resetProfile() {
-  if (confirm("Voulez-vous vraiment réinitialiser votre profil ?")) {
+  if (confirm("Réinitialiser votre profil ?")) {
     tasks = [];
     xp = 0;
     save();
@@ -154,142 +159,56 @@ function resetProfile() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const stats = document.querySelector(".stats");
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "🔄 Réinitialiser le profil";
-  resetBtn.style.marginTop = "1rem";
-  resetBtn.style.backgroundColor = "#f44336";
-  resetBtn.style.color = "white";
-  resetBtn.style.border = "none";
-  resetBtn.style.padding = "0.5rem 1rem";
-  resetBtn.style.borderRadius = "6px";
-  resetBtn.style.cursor = "pointer";
-  resetBtn.onclick = resetProfile;
-  stats.appendChild(resetBtn);
-});
-
-
 function resetHistory() {
-  if (confirm("Voulez-vous vraiment supprimer l'historique ?")) {
+  if (confirm("Supprimer l'historique ?")) {
     localStorage.removeItem('history');
     alert("Historique supprimé !");
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const stats = document.querySelector(".stats");
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Réinitialiser le profil";
+  resetBtn.onclick = resetProfile;
+  resetBtn.style.cssText = "margin-top:1rem;background:#f44336;color:#fff;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer";
+  stats.appendChild(resetBtn);
+
   const nav = document.querySelector("nav");
-  const resetHistBtn = document.createElement("button");
-  resetHistBtn.textContent = "🗑️ Vider l'historique";
-  resetHistBtn.style.marginLeft = "1rem";
-  resetHistBtn.style.backgroundColor = "#ff9800";
-  resetHistBtn.style.color = "white";
-  resetHistBtn.style.border = "none";
-  resetHistBtn.style.padding = "0.3rem 0.8rem";
-  resetHistBtn.style.borderRadius = "6px";
-  resetHistBtn.style.cursor = "pointer";
-  resetHistBtn.onclick = resetHistory;
-  nav.appendChild(resetHistBtn);
-});
+  const histBtn = document.createElement("button");
+  histBtn.textContent = "🗑️ Vider l'historique";
+  histBtn.onclick = resetHistory;
+  histBtn.style.cssText = "margin-left:1rem;background:#ff9800;color:white;border:none;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer";
+  nav.appendChild(histBtn);
 
-
-const categoryEmojis = {
-  Sport: "💪",
-  Alimentation: "🍎",
-  "Healthy Life": "🧘",
-  "Good Habit": "📘",
-  "Succès": "🚀"
-};
-
-function applyFilters(tasks) {
-  const catFilter = document.getElementById('filterCategory')?.value;
-  const freqFilter = document.getElementById('filterFrequency')?.value;
-
-  return tasks.filter(task => {
-    const matchCat = !catFilter || catFilter === "all" || task.category === catFilter;
-    const matchFreq = !freqFilter || freqFilter === "all" || task.type === freqFilter;
-    return matchCat && matchFreq;
-  });
-}
-
-function render() {
-  const taskList = document.getElementById('taskList');
-  const xpTotal = document.getElementById('xpTotal');
-  const levelEl = document.getElementById('level');
-  const xpToNext = document.getElementById('xpToNext');
-  const fill = document.getElementById('progressFill');
-
-  taskList.innerHTML = '';
-  const filteredTasks = applyFilters(tasks);
-
-  filteredTasks.forEach((task, i) => {
-    const li = document.createElement('li');
-    const box = document.createElement('input');
-    box.type = 'checkbox';
-    box.checked = task.done;
-    box.onchange = () => toggleTask(i, li);
-
-    const del = document.createElement('button');
-    del.textContent = 'X';
-    del.onclick = () => deleteTask(i);
-
-    const emoji = categoryEmojis[task.category] || '🔸';
-
-    li.appendChild(box);
-    li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
-    li.appendChild(del);
-    taskList.appendChild(li);
-  });
-
-  const level = getLevel();
-  xpTotal.textContent = xp;
-  levelEl.textContent = level;
-  xpToNext.textContent = getXpToNextLevel(level);
-
-  const levelXp = levelThresholds[level] || 1;
-  const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
-  const progress = Math.min(100, ((xp - previousXp) / levelXp) * 100);
-  fill.style.width = `${progress}%`;
-
-  updateBadgesAndGrade(level);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Ajout des filtres
   const left = document.querySelector(".left");
   const filterBar = document.createElement("div");
   filterBar.style.marginBottom = "1rem";
 
-  const catLabel = document.createElement("label");
-  catLabel.textContent = "Catégorie : ";
-  const catSelect = document.createElement("select");
-  catSelect.id = "filterCategory";
-  catSelect.innerHTML = `
-    <option value="all">Toutes</option>
-    <option value="Sport">💪 Sport</option>
-    <option value="Alimentation">🍎 Alimentation</option>
-    <option value="Healthy Life">🧘 Healthy Life</option>
-    <option value="Good Habit">📘 Good Habit</option>
-    <option value="Succès">🚀 Succès</option>
+  filterBar.innerHTML = `
+    <label>Catégorie : 
+      <select id="filterCategory">
+        <option value="all">Toutes</option>
+        <option value="Sport">💪 Sport</option>
+        <option value="Alimentation">🍎 Alimentation</option>
+        <option value="Healthy Life">🧘 Healthy Life</option>
+        <option value="Good Habit">📘 Good Habit</option>
+        <option value="Succès">🚀 Succès</option>
+      </select>
+    </label>
+    <label style="margin-left:1rem;">Périodicité : 
+      <select id="filterFrequency">
+        <option value="all">Toutes</option>
+        <option value="daily">Quotidienne</option>
+        <option value="weekly">Hebdomadaire</option>
+        <option value="3days">Tous les 3 jours</option>
+        <option value="one-shot">Ponctuelle</option>
+      </select>
+    </label>
   `;
-  catSelect.onchange = render;
 
-  const freqLabel = document.createElement("label");
-  freqLabel.textContent = "  Périodicité : ";
-  const freqSelect = document.createElement("select");
-  freqSelect.id = "filterFrequency";
-  freqSelect.innerHTML = `
-    <option value="all">Toutes</option>
-    <option value="daily">Quotidienne</option>
-    <option value="weekly">Hebdomadaire</option>
-    <option value="3days">Tous les 3 jours</option>
-    <option value="one-shot">Ponctuelle</option>
-  `;
-  freqSelect.onchange = render;
-
-  filterBar.appendChild(catLabel);
-  filterBar.appendChild(catSelect);
-  filterBar.appendChild(freqLabel);
-  filterBar.appendChild(freqSelect);
+  filterBar.querySelectorAll('select').forEach(s => s.onchange = render);
   left.insertBefore(filterBar, left.querySelector("ul"));
+
+  render();
 });
