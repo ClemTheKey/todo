@@ -89,9 +89,8 @@ function render() {
   const fill = document.getElementById('progressFill');
 
   taskList.innerHTML = '';
-  const filteredTasks = applyFilters(tasks);
+  const filteredTasks = tasks;
   const groupBy = document.getElementById("groupBy")?.value || "category";
-  console.log("🪄 groupBy =", groupBy);
 
   let grouped = {};
   filteredTasks.forEach((task, i) => {
