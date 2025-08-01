@@ -71,6 +71,14 @@ function updateBadgesAndGrade(level) {
   }
 }
 
+function applyFilters(tasks) {
+  const cat = document.getElementById('filterCategory')?.value;
+  const freq = document.getElementById('filterFrequency')?.value;
+  return tasks.filter(t =>
+    (!cat || cat === 'all' || t.category === cat) &&
+    (!freq || freq === 'all' || t.type === freq)
+  );
+}
 
 
 function render() {
@@ -192,7 +200,52 @@ function resetHistory() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => { render(); });
+document.addEventListener("DOMContentLoaded", () => {
+  const stats = document.querySelector(".stats");
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🔄 Réinitialiser le profil";
+  resetBtn.onclick = resetProfile;
+  resetBtn.style.cssText = "margin-top:1rem;background:#f44336;color:#fff;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer";
+  stats.appendChild(resetBtn);
+
+  const nav = document.querySelector("nav");
+  const histBtn = document.createElement("button");
+  histBtn.textContent = "🗑️ Vider l'historique";
+  histBtn.onclick = resetHistory;
+  histBtn.style.cssText = "margin-left:1rem;background:#ff9800;color:white;border:none;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer";
+  nav.appendChild(histBtn);
+
+  const left = document.querySelector(".left");
+  const filterBar = document.createElement("div");
+  filterBar.style.marginBottom = "1rem";
+
+  filterBar.innerHTML = `    <label>Regrouper par :       <select id="groupBy">        <option value="category">Catégorie</option>        <option value="type">Périodicité</option>      </select>    </label><br><br>
+    <label>Catégorie : 
+      <select id="filterCategory">
+        <option value="all">Toutes</option>
+        <option value="Sport">💪 Sport</option>
+        <option value="Alimentation">🍎 Alimentation</option>
+        <option value="Healthy Life">🧘 Healthy Life</option>
+        <option value="Good Habit">📘 Good Habit</option>
+        <option value="Succès">🚀 Succès</option>
+      </select>
+    </label>
+    <label style="margin-left:1rem;">Périodicité : 
+      <select id="filterFrequency">
+        <option value="all">Toutes</option>
+        <option value="daily">Quotidienne</option>
+        <option value="weekly">Hebdomadaire</option>
+        <option value="3days">Tous les 3 jours</option>
+        <option value="one-shot">Ponctuelle</option>
+      </select>
+    </label>
+  `;
+
+  filterBar.querySelectorAll('select').forEach(s => s.onchange = render);
+  left.insertBefore(filterBar, left.querySelector("ul"));
+
+  render();
+});
 
 
 function saveFilterPreferences() {
@@ -209,7 +262,10 @@ function loadFilterPreferences() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => { render(); });
+document.addEventListener("DOMContentLoaded", () => {
+  loadFilterPreferences();
+  render();
+});
 
 document.addEventListener("change", (e) => {
   if (["filterCategory", "filterFrequency", "groupBy"].includes(e.target.id)) {
@@ -235,3 +291,14 @@ function saveToHistory(task) {
   history.push(entry);
   localStorage.setItem('history', JSON.stringify(history));
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const hideFilters = () => {
+    ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.parentElement) el.parentElement.style.display = 'none';
+    });
+  };
+  hideFilters();
+});
