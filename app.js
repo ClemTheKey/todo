@@ -201,6 +201,7 @@ function resetHistory() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  render();
   const stats = document.querySelector(".stats");
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "🔄 Réinitialiser le profil";
@@ -234,6 +235,7 @@ function loadFilterPreferences() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  render();
   loadFilterPreferences();
   render();
 });
@@ -265,6 +267,7 @@ function saveToHistory(task) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+  render();
   const hideFilters = () => {
     ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
       const el = document.getElementById(id);
