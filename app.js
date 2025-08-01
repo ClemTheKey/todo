@@ -162,7 +162,7 @@ function toggleTask(index, element) {
   element.classList.add('fade-out');
 
   setTimeout(() => {
-    if (task.type === 'ponctuel') {
+    if (task.type === 'one-shot') {
       tasks.splice(index, 1);
     } else {
       const newTask = { ...task, done: false };
