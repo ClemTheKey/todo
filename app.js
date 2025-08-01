@@ -215,35 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
   histBtn.style.cssText = "margin-left:1rem;background:#ff9800;color:white;border:none;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer";
   nav.appendChild(histBtn);
 
-  const left = document.querySelector(".left");
-  const filterBar = document.createElement("div");
-  filterBar.style.marginBottom = "1rem";
-
-  filterBar.innerHTML = `    <label>Regrouper par :       <select id="groupBy">        <option value="category">Catégorie</option>        <option value="type">Périodicité</option>      </select>    </label><br><br>
-    <label>Catégorie : 
-      <select id="filterCategory">
-        <option value="all">Toutes</option>
-        <option value="Sport">💪 Sport</option>
-        <option value="Alimentation">🍎 Alimentation</option>
-        <option value="Healthy Life">🧘 Healthy Life</option>
-        <option value="Good Habit">📘 Good Habit</option>
-        <option value="Succès">🚀 Succès</option>
-      </select>
-    </label>
-    <label style="margin-left:1rem;">Périodicité : 
-      <select id="filterFrequency">
-        <option value="all">Toutes</option>
-        <option value="daily">Quotidienne</option>
-        <option value="weekly">Hebdomadaire</option>
-        <option value="3days">Tous les 3 jours</option>
-        <option value="one-shot">Ponctuelle</option>
-      </select>
-    </label>
-  `;
-
-  filterBar.querySelectorAll('select').forEach(s => s.onchange = render);
-  left.insertBefore(filterBar, left.querySelector("ul"));
-
   render();
 });
 
