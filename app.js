@@ -81,14 +81,16 @@ function applyFilters(tasks) {
 }
 
 
+
 function render() {
   const taskList = document.getElementById('taskList');
   const xpTotal = document.getElementById('xpTotal');
   const levelEl = document.getElementById('level');
   const xpToNext = document.getElementById('xpToNext');
   const fill = document.getElementById('progressFill');
+
   taskList.innerHTML = '';
-  const groupBy = document.getElementById("groupBy")?.value || "category";
+  const groupBy = document.getElementById("groupBySelect")?.value || "category";
 
   let grouped = {};
   tasks.forEach((task, i) => {
@@ -100,10 +102,8 @@ function render() {
   Object.keys(grouped).forEach(group => {
     const title = document.createElement("h3");
     title.textContent = group;
-    title.style.marginTop = "1rem";
-    title.style.borderBottom = "1px solid #ccc";
-
     taskList.appendChild(title);
+
     grouped[group].forEach(({ task, index }) => {
       const li = document.createElement('li');
       li.dataset.type = task.type;
@@ -122,68 +122,17 @@ function render() {
       taskList.appendChild(li);
     });
   });
-  const groupBy = document.getElementById('groupBy')?.value || 'category';
-
-  let grouped = {};
-  filteredTasks.forEach((task, i) => {
-    const key = task[groupBy] || 'Autre';
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push({ task, index: i });
-  });
-
-  Object.keys(grouped).forEach(group => {
-    const groupContainer = document.createElement('div');
-    groupContainer.className = 'task-group';
-
-    const title = document.createElement('h3');
-    title.textContent = group;
-    title.style.background = '#e0f7fa';
-    title.style.padding = '0.3rem';
-    title.style.borderRadius = '5px';
-    title.style.cursor = 'pointer';
-    title.style.userSelect = 'none';
-
-    const taskHolder = document.createElement('ul');
-    taskHolder.style.marginTop = '0.5rem';
-
-    title.onclick = () => {
-      taskHolder.style.display = taskHolder.style.display === 'none' ? '' : 'none';
-    };
-
-    grouped[group].forEach(({ task, index }) => {
-      const li = document.createElement('li');
-      const box = document.createElement('input');
-      box.type = 'checkbox';
-      box.checked = task.done;
-      box.onchange = () => toggleTask(index, li);
-
-      const del = document.createElement('button');
-      del.textContent = 'X';
-      del.onclick = () => deleteTask(index);
-
-      const emoji = categoryEmojis[task.category] || '🔸';
-      li.appendChild(box);
-      li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
-      li.appendChild(del);
-      taskHolder.appendChild(li);
-    });
-
-    groupContainer.appendChild(title);
-    groupContainer.appendChild(taskHolder);
-    taskList.appendChild(groupContainer);
-  });
 
   const level = getLevel();
   xpTotal.textContent = xp;
   levelEl.textContent = level;
   xpToNext.textContent = getXpToNextLevel(level);
-
   const levelXp = levelThresholds[level] || 1;
   const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
   fill.style.width = Math.min(100, ((xp - previousXp) / levelXp) * 100) + "%";
-
   updateBadgesAndGrade(level);
 }
+
 
 
 function toggleTask(index, element) {
@@ -239,14 +188,14 @@ document.addEventListener("DOMContentLoaded", () => {
   groupWrap.className = "form-group";
   groupWrap.style.marginBottom = "1rem";
   groupWrap.innerHTML = `
-    <label>Regrouper par :</label>
-    <select id="groupBy">
+    <label>Regrouper les tâches par :</label>
+    <select id="groupBySelect">
       <option value="category">Catégorie</option>
       <option value="type">Périodicité</option>
     </select>
   `;
+  groupWrap.querySelector("select").onchange = () => render();
   left.insertBefore(groupWrap, left.querySelector("ul"));
-  document.getElementById("groupBy").addEventListener("change", render);
 
   const stats = document.querySelector(".stats");
   const resetBtn = document.createElement("button");
@@ -316,14 +265,14 @@ document.addEventListener("DOMContentLoaded", () => {
   groupWrap.className = "form-group";
   groupWrap.style.marginBottom = "1rem";
   groupWrap.innerHTML = `
-    <label>Regrouper par :</label>
-    <select id="groupBy">
+    <label>Regrouper les tâches par :</label>
+    <select id="groupBySelect">
       <option value="category">Catégorie</option>
       <option value="type">Périodicité</option>
     </select>
   `;
+  groupWrap.querySelector("select").onchange = () => render();
   left.insertBefore(groupWrap, left.querySelector("ul"));
-  document.getElementById("groupBy").addEventListener("change", render);
 
   loadFilterPreferences();
   render();
@@ -353,29 +302,3 @@ function saveToHistory(task) {
   history.push(entry);
   localStorage.setItem('history', JSON.stringify(history));
 }
-
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const left = document.querySelector(".left");
-  const groupWrap = document.createElement("div");
-  groupWrap.className = "form-group";
-  groupWrap.style.marginBottom = "1rem";
-  groupWrap.innerHTML = `
-    <label>Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  left.insertBefore(groupWrap, left.querySelector("ul"));
-  document.getElementById("groupBy").addEventListener("change", render);
-
-  const hideFilters = () => {
-    ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el && el.parentElement) el.parentElement.style.display = 'none';
-    });
-  };
-  hideFilters();
-});
