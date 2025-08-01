@@ -71,7 +71,14 @@ function updateBadgesAndGrade(level) {
   }
 }
 
-
+function applyFilters(tasks) {
+  const cat = document.getElementById('filterCategory')?.value;
+  const freq = document.getElementById('filterFrequency')?.value;
+  return tasks.filter(t =>
+    (!cat || cat === 'all' || t.category === cat) &&
+    (!freq || freq === 'all' || t.type === freq)
+  );
+}
 
 
 function render() {
@@ -82,53 +89,69 @@ function render() {
   const fill = document.getElementById('progressFill');
 
   taskList.innerHTML = '';
-  const groupBy = document.getElementById("groupBy")?.value || "category";
+  const filteredTasks = applyFilters(tasks);
+  const groupBy = document.getElementById('groupBy')?.value || 'category';
 
   let grouped = {};
-  tasks.forEach((task, i) => {
-    const key = task[groupBy] || "Autre";
+  filteredTasks.forEach((task, i) => {
+    const key = task[groupBy] || 'Autre';
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push({ task, index: i });
   });
 
-  Object.entries(grouped).forEach(([group, entries]) => {
-    const header = document.createElement("h3");
-    header.textContent = group;
-    taskList.appendChild(header);
+  Object.keys(grouped).forEach(group => {
+    const groupContainer = document.createElement('div');
+    groupContainer.className = 'task-group';
 
-    entries.forEach(({ task, index }) => {
-      const li = document.createElement("li");
-      li.dataset.type = task.type;
-      li.dataset.category = task.category;
+    const title = document.createElement('h3');
+    title.textContent = group;
+    title.style.background = '#e0f7fa';
+    title.style.padding = '0.3rem';
+    title.style.borderRadius = '5px';
+    title.style.cursor = 'pointer';
+    title.style.userSelect = 'none';
 
-      const box = document.createElement("input");
-      box.type = "checkbox";
+    const taskHolder = document.createElement('ul');
+    taskHolder.style.marginTop = '0.5rem';
+
+    title.onclick = () => {
+      taskHolder.style.display = taskHolder.style.display === 'none' ? '' : 'none';
+    };
+
+    grouped[group].forEach(({ task, index }) => {
+      const li = document.createElement('li');
+      const box = document.createElement('input');
+      box.type = 'checkbox';
       box.checked = task.done;
       box.onchange = () => toggleTask(index, li);
 
-      const del = document.createElement("button");
-      del.textContent = "X";
+      const del = document.createElement('button');
+      del.textContent = 'X';
       del.onclick = () => deleteTask(index);
 
-      const emoji = categoryEmojis[task.category] || "🔸";
+      const emoji = categoryEmojis[task.category] || '🔸';
       li.appendChild(box);
       li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
       li.appendChild(del);
-      taskList.appendChild(li);
+      taskHolder.appendChild(li);
     });
+
+    groupContainer.appendChild(title);
+    groupContainer.appendChild(taskHolder);
+    taskList.appendChild(groupContainer);
   });
 
   const level = getLevel();
   xpTotal.textContent = xp;
   levelEl.textContent = level;
   xpToNext.textContent = getXpToNextLevel(level);
+
   const levelXp = levelThresholds[level] || 1;
-  const previousXp = levelThresholds.slice(0, level).reduce((a, b) => a + b, 0);
+  const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
   fill.style.width = Math.min(100, ((xp - previousXp) / levelXp) * 100) + "%";
 
   updateBadgesAndGrade(level);
 }
-
 
 
 function toggleTask(index, element) {
@@ -178,34 +201,6 @@ function resetHistory() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  const left = document.querySelector(".left");
-  const groupBox = document.createElement("div");
-  groupBox.style.marginBottom = "1rem";
-  groupBox.innerHTML = `
-    <label for="groupBy">Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  groupBox.querySelector("select").addEventListener("change", render);
-  left.insertBefore(groupBox, left.querySelector("ul"));
-
-
-  const left = document.querySelector(".left");
-  const groupDiv = document.createElement("div");
-  groupDiv.style.marginBottom = "1rem";
-  groupDiv.innerHTML = `
-    <label>Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  groupDiv.querySelector("select").onchange = () => render();
-  left.insertBefore(groupDiv, left.querySelector("ul"));
-
   const stats = document.querySelector(".stats");
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "🔄 Réinitialiser le profil";
@@ -268,34 +263,6 @@ function loadFilterPreferences() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  const left = document.querySelector(".left");
-  const groupBox = document.createElement("div");
-  groupBox.style.marginBottom = "1rem";
-  groupBox.innerHTML = `
-    <label for="groupBy">Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  groupBox.querySelector("select").addEventListener("change", render);
-  left.insertBefore(groupBox, left.querySelector("ul"));
-
-
-  const left = document.querySelector(".left");
-  const groupDiv = document.createElement("div");
-  groupDiv.style.marginBottom = "1rem";
-  groupDiv.innerHTML = `
-    <label>Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  groupDiv.querySelector("select").onchange = () => render();
-  left.insertBefore(groupDiv, left.querySelector("ul"));
-
   loadFilterPreferences();
   render();
 });
@@ -327,34 +294,6 @@ function saveToHistory(task) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  const left = document.querySelector(".left");
-  const groupBox = document.createElement("div");
-  groupBox.style.marginBottom = "1rem";
-  groupBox.innerHTML = `
-    <label for="groupBy">Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  groupBox.querySelector("select").addEventListener("change", render);
-  left.insertBefore(groupBox, left.querySelector("ul"));
-
-
-  const left = document.querySelector(".left");
-  const groupDiv = document.createElement("div");
-  groupDiv.style.marginBottom = "1rem";
-  groupDiv.innerHTML = `
-    <label>Regrouper par :</label>
-    <select id="groupBy">
-      <option value="category">Catégorie</option>
-      <option value="type">Périodicité</option>
-    </select>
-  `;
-  groupDiv.querySelector("select").onchange = () => render();
-  left.insertBefore(groupDiv, left.querySelector("ul"));
-
   const hideFilters = () => {
     ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
       const el = document.getElementById(id);
