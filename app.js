@@ -90,7 +90,7 @@ function render() {
 
   taskList.innerHTML = '';
   const filteredTasks = applyFilters(tasks);
-  const groupBy = document.getElementById('groupBy')?.value || 'category';
+  const groupBy = document.getElementById("groupBy")?.value || "category";
 
   let grouped = {};
   filteredTasks.forEach((task, i) => {
