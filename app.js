@@ -81,6 +81,7 @@ function applyFilters(tasks) {
 }
 
 
+
 function render() {
   const taskList = document.getElementById('taskList');
   const xpTotal = document.getElementById('xpTotal');
@@ -89,69 +90,54 @@ function render() {
   const fill = document.getElementById('progressFill');
 
   taskList.innerHTML = '';
-  const filteredTasks = applyFilters(tasks);
-  const groupBy = document.getElementById('groupBy')?.value || 'category';
 
-  let grouped = {};
-  filteredTasks.forEach((task, i) => {
+  const groupBy = document.getElementById("groupBy")?.value || "category";
+  const grouped = {};
+
+  tasks.forEach((task, index) => {
     const key = task[groupBy] || 'Autre';
     if (!grouped[key]) grouped[key] = [];
-    grouped[key].push({ task, index: i });
+    grouped[key].push({ task, index });
   });
 
-  Object.keys(grouped).forEach(group => {
-    const groupContainer = document.createElement('div');
-    groupContainer.className = 'task-group';
+  Object.entries(grouped).forEach(([groupName, groupTasks]) => {
+    const header = document.createElement("h3");
+    header.textContent = groupName;
+    taskList.appendChild(header);
 
-    const title = document.createElement('h3');
-    title.textContent = group;
-    title.style.background = '#e0f7fa';
-    title.style.padding = '0.3rem';
-    title.style.borderRadius = '5px';
-    title.style.cursor = 'pointer';
-    title.style.userSelect = 'none';
+    groupTasks.forEach(({ task, index }) => {
+      const li = document.createElement("li");
+      li.dataset.type = task.type;
+      li.dataset.category = task.category;
 
-    const taskHolder = document.createElement('ul');
-    taskHolder.style.marginTop = '0.5rem';
-
-    title.onclick = () => {
-      taskHolder.style.display = taskHolder.style.display === 'none' ? '' : 'none';
-    };
-
-    grouped[group].forEach(({ task, index }) => {
-      const li = document.createElement('li');
-      const box = document.createElement('input');
-      box.type = 'checkbox';
+      const box = document.createElement("input");
+      box.type = "checkbox";
       box.checked = task.done;
       box.onchange = () => toggleTask(index, li);
 
-      const del = document.createElement('button');
-      del.textContent = 'X';
+      const del = document.createElement("button");
+      del.textContent = "X";
       del.onclick = () => deleteTask(index);
 
-      const emoji = categoryEmojis[task.category] || '🔸';
+      const emoji = categoryEmojis[task.category] || "🔸";
       li.appendChild(box);
       li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
       li.appendChild(del);
-      taskHolder.appendChild(li);
+      taskList.appendChild(li);
     });
-
-    groupContainer.appendChild(title);
-    groupContainer.appendChild(taskHolder);
-    taskList.appendChild(groupContainer);
   });
 
   const level = getLevel();
   xpTotal.textContent = xp;
   levelEl.textContent = level;
   xpToNext.textContent = getXpToNextLevel(level);
-
   const levelXp = levelThresholds[level] || 1;
-  const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
+  const previousXp = levelThresholds.slice(0, level).reduce((a, b) => a + b, 0);
   fill.style.width = Math.min(100, ((xp - previousXp) / levelXp) * 100) + "%";
 
   updateBadgesAndGrade(level);
 }
+
 
 
 function toggleTask(index, element) {
@@ -162,7 +148,7 @@ function toggleTask(index, element) {
   element.classList.add('fade-out');
 
   setTimeout(() => {
-    if (task.type === 'ponctuel') {
+    if (task.type === 'one-shot') {
       tasks.splice(index, 1);
     } else {
       const newTask = { ...task, done: false };
@@ -214,36 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
   histBtn.onclick = resetHistory;
   histBtn.style.cssText = "margin-left:1rem;background:#ff9800;color:white;border:none;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer";
   nav.appendChild(histBtn);
-
-  const left = document.querySelector(".left");
-  const filterBar = document.createElement("div");
-  filterBar.style.marginBottom = "1rem";
-
-  filterBar.innerHTML = `    <label>Regrouper par :       <select id="groupBy">        <option value="category">Catégorie</option>        <option value="type">Périodicité</option>      </select>    </label><br><br>
-    <label>Catégorie : 
-      <select id="filterCategory">
-        <option value="all">Toutes</option>
-        <option value="Sport">💪 Sport</option>
-        <option value="Alimentation">🍎 Alimentation</option>
-        <option value="Healthy Life">🧘 Healthy Life</option>
-        <option value="Good Habit">📘 Good Habit</option>
-        <option value="Succès">🚀 Succès</option>
-      </select>
-    </label>
-    <label style="margin-left:1rem;">Périodicité : 
-      <select id="filterFrequency">
-        <option value="all">Toutes</option>
-        <option value="daily">Quotidienne</option>
-        <option value="weekly">Hebdomadaire</option>
-        <option value="3days">Tous les 3 jours</option>
-        <option value="one-shot">Ponctuelle</option>
-      </select>
-    </label>
-  `;
-
-  filterBar.querySelectorAll('select').forEach(s => s.onchange = render);
-  left.insertBefore(filterBar, left.querySelector("ul"));
-
   render();
 });
 
