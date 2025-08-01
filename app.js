@@ -82,6 +82,7 @@ function applyFilters(tasks) {
 
 
 function render() {
+  console.log("🧪 GROUP BY VIVANT :", document.getElementById("groupBy"));
   const taskList = document.getElementById('taskList');
   const xpTotal = document.getElementById('xpTotal');
   const levelEl = document.getElementById('level');
