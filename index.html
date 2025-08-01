@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToDo Gamifié v3.4</title>
+  <title>ToDo Gamifié v3.4.4</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -124,33 +125,15 @@
   </style>
 </head>
 <body>
-  <header>ToDo Gamifié 🎮 <span style="font-size:0.8rem;">(v3.4)</span></header>
-  
+  <header>ToDo Gamifié 🎮 <span style="font-size:0.8rem;">(v3.4.4)</span></header>
   <nav>
-    <a href="index.html"><strong>🏠 Accueil</strong></a> |
-    <a href="settings.html">⚙️ Réglages</a> |
-    <a href="history.html">📜 Historique</a> |
+    <a href="settings.html">⚙️ Réglages</a>
+    <a href="history.html">📜 Historique</a>
     <a href="badges.html">🏅 Badges</a>
   </nav>
-
   <div class="container">
     <div class="left">
       <h2>Tâches</h2>
-<div class="form-group">
-  <label for="filterPeriod">Filtrer par périodicité :</label>
-  <select id="filterPeriod" onchange="applyFilter()">
-    <option value="">Toutes</option>
-    <option value="quotidien">Quotidien</option>
-    <option value="hebdomadaire">Hebdomadaire</option>
-    <option value="ponctuel">Ponctuel</option>
-    <option value="3j">Tous les 3 jours</option>
-  </select>
-</div>
-
-
-
-
-
       <ul class="tasks" id="taskList"></ul>
     </div>
     <div class="right">
@@ -169,51 +152,9 @@
       </div>
     </div>
   </div>
-  <script src="app.js">
-function filterTasksByCategory() {
-  const selected = document.getElementById("categoryFilter").value;
-  const allTasks = document.querySelectorAll("#taskList li");
-  allTasks.forEach(li => {
-    if (!selected || li.dataset.category === selected) {
-      li.style.display = "flex";
-    } else {
-      li.style.display = "none";
-    }
-  });
-}
-
-
-function filterTasksByType() {
-  const selectedType = document.getElementById("typeFilter").value;
-  const taskList = document.querySelectorAll("#taskList li");
-  taskList.forEach(li => {
-    if (!selectedType || li.dataset.type === selectedType) {
-      li.style.display = "flex";
-    } else {
-      li.style.display = "none";
-    }
-  });
-}
-
-
-function applyFilter() {
-  const selectedType = document.getElementById("filterPeriod").value;
-  const tasks = document.querySelectorAll("#taskList li");
-  tasks.forEach(task => {
-    const type = task.dataset.type;
-    if (!selectedType || selectedType === type) {
-      task.style.display = "flex";
-    } else {
-      task.style.display = "none";
-    }
-  });
-}
-
-</script>
-
-  <footer style="text-align:center;padding:1rem;color:#888;font-size:0.8rem;">ToDo Gamifié v3.4.3</footer>
-
-
-  <footer style="text-align:center;padding:1rem;color:#888;font-size:0.8rem;">ToDo Gamifié v3.4.3</footer>
+  <footer style="text-align:center;padding:1rem;color:#888;font-size:0.8rem;">
+    ToDo Gamifié v3.4.4
+  </footer>
+  <script src="app_stable_grouped.js"></script>
 </body>
 </html>
