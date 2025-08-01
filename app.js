@@ -291,3 +291,14 @@ function saveToHistory(task) {
   history.push(entry);
   localStorage.setItem('history', JSON.stringify(history));
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const hideFilters = () => {
+    ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.parentElement) el.parentElement.style.display = 'none';
+    });
+  };
+  hideFilters();
+});
