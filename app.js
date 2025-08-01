@@ -87,9 +87,41 @@ function render() {
   const levelEl = document.getElementById('level');
   const xpToNext = document.getElementById('xpToNext');
   const fill = document.getElementById('progressFill');
-
   taskList.innerHTML = '';
-  const filteredTasks = applyFilters(tasks);
+  const groupBy = document.getElementById("groupBy")?.value || "category";
+
+  let grouped = {};
+  tasks.forEach((task, i) => {
+    const key = task[groupBy] || 'Autre';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push({ task, index: i });
+  });
+
+  Object.keys(grouped).forEach(group => {
+    const title = document.createElement("h3");
+    title.textContent = group;
+    title.style.marginTop = "1rem";
+    title.style.borderBottom = "1px solid #ccc";
+
+    taskList.appendChild(title);
+    grouped[group].forEach(({ task, index }) => {
+      const li = document.createElement('li');
+      li.dataset.type = task.type;
+      li.dataset.category = task.category;
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = task.done;
+      box.onchange = () => toggleTask(index, li);
+      const del = document.createElement('button');
+      del.textContent = 'X';
+      del.onclick = () => deleteTask(index);
+      const emoji = categoryEmojis[task.category] || '🔸';
+      li.appendChild(box);
+      li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
+      li.appendChild(del);
+      taskList.appendChild(li);
+    });
+  });
   const groupBy = document.getElementById('groupBy')?.value || 'category';
 
   let grouped = {};
@@ -201,6 +233,21 @@ function resetHistory() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const left = document.querySelector(".left");
+  const groupWrap = document.createElement("div");
+  groupWrap.className = "form-group";
+  groupWrap.style.marginBottom = "1rem";
+  groupWrap.innerHTML = `
+    <label>Regrouper par :</label>
+    <select id="groupBy">
+      <option value="category">Catégorie</option>
+      <option value="type">Périodicité</option>
+    </select>
+  `;
+  left.insertBefore(groupWrap, left.querySelector("ul"));
+  document.getElementById("groupBy").addEventListener("change", render);
+
   const stats = document.querySelector(".stats");
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "🔄 Réinitialiser le profil";
@@ -263,6 +310,21 @@ function loadFilterPreferences() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const left = document.querySelector(".left");
+  const groupWrap = document.createElement("div");
+  groupWrap.className = "form-group";
+  groupWrap.style.marginBottom = "1rem";
+  groupWrap.innerHTML = `
+    <label>Regrouper par :</label>
+    <select id="groupBy">
+      <option value="category">Catégorie</option>
+      <option value="type">Périodicité</option>
+    </select>
+  `;
+  left.insertBefore(groupWrap, left.querySelector("ul"));
+  document.getElementById("groupBy").addEventListener("change", render);
+
   loadFilterPreferences();
   render();
 });
@@ -294,6 +356,21 @@ function saveToHistory(task) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const left = document.querySelector(".left");
+  const groupWrap = document.createElement("div");
+  groupWrap.className = "form-group";
+  groupWrap.style.marginBottom = "1rem";
+  groupWrap.innerHTML = `
+    <label>Regrouper par :</label>
+    <select id="groupBy">
+      <option value="category">Catégorie</option>
+      <option value="type">Périodicité</option>
+    </select>
+  `;
+  left.insertBefore(groupWrap, left.querySelector("ul"));
+  document.getElementById("groupBy").addEventListener("change", render);
+
   const hideFilters = () => {
     ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
       const el = document.getElementById(id);
