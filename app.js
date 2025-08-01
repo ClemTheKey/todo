@@ -71,14 +71,6 @@ function updateBadgesAndGrade(level) {
   }
 }
 
-function applyFilters(tasks) {
-  const cat = document.getElementById('filterCategory')?.value;
-  const freq = document.getElementById('filterFrequency')?.value;
-  return tasks.filter(t =>
-    (!cat || cat === 'all' || t.category === cat) &&
-    (!freq || freq === 'all' || t.type === freq)
-  );
-}
 
 
 function render() {
@@ -291,3 +283,14 @@ function saveToHistory(task) {
   history.push(entry);
   localStorage.setItem('history', JSON.stringify(history));
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const hideFilters = () => {
+    ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.parentElement) el.parentElement.style.display = 'none';
+    });
+  };
+  hideFilters();
+});
