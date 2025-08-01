@@ -73,6 +73,7 @@ function updateBadgesAndGrade(level) {
 
 
 
+
 function render() {
   const taskList = document.getElementById('taskList');
   const xpTotal = document.getElementById('xpTotal');
@@ -81,69 +82,53 @@ function render() {
   const fill = document.getElementById('progressFill');
 
   taskList.innerHTML = '';
-  const filteredTasks = applyFilters(tasks);
-  const groupBy = document.getElementById('groupBy')?.value || 'category';
+  const groupBy = document.getElementById("groupBy")?.value || "category";
 
   let grouped = {};
-  filteredTasks.forEach((task, i) => {
-    const key = task[groupBy] || 'Autre';
+  tasks.forEach((task, i) => {
+    const key = task[groupBy] || "Autre";
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push({ task, index: i });
   });
 
-  Object.keys(grouped).forEach(group => {
-    const groupContainer = document.createElement('div');
-    groupContainer.className = 'task-group';
+  Object.entries(grouped).forEach(([group, entries]) => {
+    const header = document.createElement("h3");
+    header.textContent = group;
+    taskList.appendChild(header);
 
-    const title = document.createElement('h3');
-    title.textContent = group;
-    title.style.background = '#e0f7fa';
-    title.style.padding = '0.3rem';
-    title.style.borderRadius = '5px';
-    title.style.cursor = 'pointer';
-    title.style.userSelect = 'none';
+    entries.forEach(({ task, index }) => {
+      const li = document.createElement("li");
+      li.dataset.type = task.type;
+      li.dataset.category = task.category;
 
-    const taskHolder = document.createElement('ul');
-    taskHolder.style.marginTop = '0.5rem';
-
-    title.onclick = () => {
-      taskHolder.style.display = taskHolder.style.display === 'none' ? '' : 'none';
-    };
-
-    grouped[group].forEach(({ task, index }) => {
-      const li = document.createElement('li');
-      const box = document.createElement('input');
-      box.type = 'checkbox';
+      const box = document.createElement("input");
+      box.type = "checkbox";
       box.checked = task.done;
       box.onchange = () => toggleTask(index, li);
 
-      const del = document.createElement('button');
-      del.textContent = 'X';
+      const del = document.createElement("button");
+      del.textContent = "X";
       del.onclick = () => deleteTask(index);
 
-      const emoji = categoryEmojis[task.category] || '🔸';
+      const emoji = categoryEmojis[task.category] || "🔸";
       li.appendChild(box);
       li.append(`${emoji} ${task.name} (${task.type}, ${task.category}) [+${task.points} XP]`);
       li.appendChild(del);
-      taskHolder.appendChild(li);
+      taskList.appendChild(li);
     });
-
-    groupContainer.appendChild(title);
-    groupContainer.appendChild(taskHolder);
-    taskList.appendChild(groupContainer);
   });
 
   const level = getLevel();
   xpTotal.textContent = xp;
   levelEl.textContent = level;
   xpToNext.textContent = getXpToNextLevel(level);
-
   const levelXp = levelThresholds[level] || 1;
-  const previousXp = levelThresholds.slice(0, level).reduce((a,b) => a+b, 0);
+  const previousXp = levelThresholds.slice(0, level).reduce((a, b) => a + b, 0);
   fill.style.width = Math.min(100, ((xp - previousXp) / levelXp) * 100) + "%";
 
   updateBadgesAndGrade(level);
 }
+
 
 
 function toggleTask(index, element) {
@@ -193,6 +178,20 @@ function resetHistory() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const left = document.querySelector(".left");
+  const groupDiv = document.createElement("div");
+  groupDiv.style.marginBottom = "1rem";
+  groupDiv.innerHTML = `
+    <label>Regrouper par :</label>
+    <select id="groupBy">
+      <option value="category">Catégorie</option>
+      <option value="type">Périodicité</option>
+    </select>
+  `;
+  groupDiv.querySelector("select").onchange = () => render();
+  left.insertBefore(groupDiv, left.querySelector("ul"));
+
   const stats = document.querySelector(".stats");
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "🔄 Réinitialiser le profil";
@@ -255,6 +254,20 @@ function loadFilterPreferences() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const left = document.querySelector(".left");
+  const groupDiv = document.createElement("div");
+  groupDiv.style.marginBottom = "1rem";
+  groupDiv.innerHTML = `
+    <label>Regrouper par :</label>
+    <select id="groupBy">
+      <option value="category">Catégorie</option>
+      <option value="type">Périodicité</option>
+    </select>
+  `;
+  groupDiv.querySelector("select").onchange = () => render();
+  left.insertBefore(groupDiv, left.querySelector("ul"));
+
   loadFilterPreferences();
   render();
 });
@@ -286,6 +299,20 @@ function saveToHistory(task) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const left = document.querySelector(".left");
+  const groupDiv = document.createElement("div");
+  groupDiv.style.marginBottom = "1rem";
+  groupDiv.innerHTML = `
+    <label>Regrouper par :</label>
+    <select id="groupBy">
+      <option value="category">Catégorie</option>
+      <option value="type">Périodicité</option>
+    </select>
+  `;
+  groupDiv.querySelector("select").onchange = () => render();
+  left.insertBefore(groupDiv, left.querySelector("ul"));
+
   const hideFilters = () => {
     ['filterCategory', 'filterFrequency', 'filterPeriod', 'typeFilter', 'groupBy'].forEach(id => {
       const el = document.getElementById(id);
