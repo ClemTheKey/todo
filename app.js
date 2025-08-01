@@ -88,7 +88,7 @@ function render() {
   const xpToNext = document.getElementById('xpToNext');
   const fill = document.getElementById('progressFill');
 
-  taskList.innerHTML = '';
+  while (taskList.firstChild) taskList.removeChild(taskList.firstChild);
   const filteredTasks = tasks;
   const groupBy = document.getElementById("groupBy")?.value || "category";
 
