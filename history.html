@@ -2,104 +2,77 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Historique des Tâches</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
-      margin: 0;
+      background: #f5f5f5;
       padding: 1rem;
-      color: #333;
     }
-    h1 {
-      text-align: center;
-      color: #4CAF50;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 0.6rem;
-      text-align: left;
-    }
-    th {
+    header {
       background: #4CAF50;
       color: white;
-    }
-    tr:nth-child(even) {
-      background: #f9f9f9;
+      padding: 1rem;
+      text-align: center;
     }
     nav {
       text-align: center;
-      margin: 1rem 0;
+      margin-bottom: 1rem;
     }
     nav a {
+      margin: 0 1rem;
       color: #4CAF50;
-      text-decoration: none;
       font-weight: bold;
+      text-decoration: none;
     }
-    footer {
-      text-align: center;
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
       padding: 1rem;
-      color: #777;
-      font-size: 0.9rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    li {
+      padding: 0.5rem;
+      border-bottom: 1px solid #ddd;
+    }
+    .emoji {
+      font-size: 1.2em;
+      margin-right: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <h1>📜 Historique des Tâches</h1>
-  
+  <header>📜 Historique des Tâches</header>
   <nav>
-    <a href="index.html">🏠 Accueil</a> |
-    <a href="settings.html">⚙️ Réglages</a> |
-    <a href="history.html"><strong>📜 Historique</strong></a> |
+    <a href="index.html">🏠 Accueil</a>
+    <a href="settings.html">⚙️ Réglages</a>
     <a href="badges.html">🏅 Badges</a>
   </nav>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Tâche</th>
-        <th>Catégorie</th>
-        <th>Périodicité</th>
-        <th>Points</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody id="historyTable"></tbody>
-  </table>
-  <footer>
-    Version 3.4.1 – construit avec ❤️ par Clément
-  </footer>
+  <div class="container">
+    <ul id="historyList"></ul>
+  </div>
   <script>
-    const table = document.getElementById('historyTable');
-    const history = JSON.parse(localStorage.getItem('history') || '[]');
+    const emojiMap = {
+      "Sport": "🏃",
+      "Alimentation": "🥗",
+      "Healthy Life": "🧘",
+      "Good Habit": "📘",
+      "Succès": "🚀",
+      "Divers": "✨"
+    };
 
-    if (history.length === 0) {
-      const row = document.createElement('tr');
-      const cell = document.createElement('td');
-      cell.colSpan = 5;
-      cell.textContent = "Aucune tâche validée pour l'instant.";
-      row.appendChild(cell);
-      table.appendChild(row);
-    } else {
-      history.forEach(entry => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${entry.name}</td>
-          <td>${entry.category}</td>
-          <td>${entry.type}</td>
-          <td>${entry.points}</td>
-          <td>${entry.date}</td>
-        `;
-        table.appendChild(row);
-      });
-    }
+    const history = JSON.parse(localStorage.getItem("history") || "[]");
+    const ul = document.getElementById("historyList");
+
+    history.forEach(entry => {
+      const li = document.createElement("li");
+      const emoji = emojiMap[entry.category] || "🗂️";
+      li.innerHTML = `<span class="emoji">${emoji}</span>${entry.name} (${entry.category}, ${entry.type}) - <em>${entry.date}</em>`;
+      ul.appendChild(li);
+    });
   </script>
 </body>
 </html>
