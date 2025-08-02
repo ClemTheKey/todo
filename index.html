@@ -149,15 +149,22 @@
         items.forEach(task => {
           const li = document.createElement("li");
           li.textContent = `${task.name} (${task.points} XP)`;
+          
           li.onclick = () => {
-
             xp += task.points;
             updateProfile();
-            li.style.textDecoration = "line-through";
-            li.style.opacity = 0.6;
-            li.onclick = null;
-          
             addToHistory(task);
+            li.style.transition = "opacity 0.4s ease";
+            li.style.opacity = 0;
+            setTimeout(() => {
+              li.remove();
+              if (task.type !== "ponctuel") {
+                setTimeout(() => {
+                  render();
+                }, 3000);
+              }
+            }, 400);
+          };
         };
           taskList.appendChild(li);
         });
